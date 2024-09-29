@@ -3,6 +3,8 @@
 #include "windows.h"
 #include <vector>
 #include <fstream> 
+#include <csignal>
+
 struct Pipe {
     std::string kilometricMark = "Nothing"; // Километровая отметка 
     double length = 0.0; // Длина, км
@@ -176,6 +178,67 @@ void edit_CS(CompressorStation newst) { //4. Редактировать КС
     }
     CS_info(newst);
 }
+void SAVE_pipe(Pipe pipes) {
+    std::ofstream outp("saved_Pipe_CS.txt");
+    if (outp.is_open()) {
+        outp << pipes.kilometricMark << std::endl;
+        outp  << pipes.length << std::endl;
+        outp  << pipes.diameter << std::endl;
+        outp  << pipes.isUnderRepair << std::endl;
+        outp.close(); // Закрытие файла
+        std::cout << "данные записаны в файл saved_Pipe_CS.txt" << std::endl;
+    }
+    else {
+        std::cout << "Не получается открыть файл." << std::endl;
+    }
+}
+void SAVE_CS(CompressorStation station) {
+    std::ofstream outp("saved_Pipe_CS.txt");
+    if (outp.is_open()) {
+        outp <<  station.name << std::endl;
+        outp << station.totalShops << std::endl;
+        outp << station.totalShops << std::endl;
+        outp << station.efficiency << std::endl;
+        std::cout << "данные записаны в файл saved_Pipe_CS.txt" << std::endl;
+        outp.close(); // Закрытие файла
+    }
+    else {
+        std::cout << "Не получается открыть файл." << std::endl;
+    }
+}
+void LOAD_pipe(Pipe& p) {
+    std::ifstream inp("saved_Pipe_CS.txt");
+    if (!inp) {
+        std::cout << "Не удалось открыть файл!" << std::endl;
+        return;
+    }
+
+    std::getline(inp, p.kilometricMark); // Чтение километрической отметки
+    inp >> p.length;                      // Чтение длины
+    inp >> p.diameter;                    // Чтение диаметра
+    int repairStatus;
+    inp >> repairStatus;                  // Чтение статуса ремонта
+    p.isUnderRepair = (repairStatus == 1); // Присваивание статуса
+
+    inp.close();
+    std::cout << "Данные о трубе загружены." << std::endl;
+}
+void LOAD_CS(CompressorStation& st) {   // Загрузка данных о КС из файла
+    std::ifstream inp("saved_Pipe_CS2.txt");
+    if (!inp) {
+        std::cout << "Не удалось открыть файл!" << std::endl;
+        return;
+    }
+
+    std::getline(inp, st.name); 
+    inp >> st.totalShops;                      
+    inp >> st.activatedShops;                    
+    inp >> st.efficiency;
+
+    inp.close();
+    std::cout << "Данные о КС загружены." << std::endl;
+}
+
 
 int main() {
     CompressorStation station;
@@ -190,10 +253,10 @@ int main() {
         std::cout << "3. Просмотреть информацию о трубах и КС" << std::endl;
         std::cout << "4. Добавить компрессорную станцию" << std::endl;
         std::cout << "5. Редактировать компрессорную станцию" << std::endl;
-        std::cout << "6. Сохранить информацию о трубах в файл(не готово)" << std::endl;
-        std::cout << "7. Сохранить информацию о компрессорной станции в файл(не готово)" << std::endl;
-        std::cout << "8. Загрузить информацию о трубах из файла(не готово)" << std::endl;
-        std::cout << "9. Загрузить информацию о компрессорной станции из файла(не готово)" << std::endl;
+        std::cout << "6. Сохранить информацию о трубах в файл" << std::endl;
+        std::cout << "7. Сохранить информацию о компрессорной станции в файл" << std::endl;
+        std::cout << "8. Загрузить информацию о трубах из файла" << std::endl;
+        std::cout << "9. Загрузить информацию о компрессорной станции из файла" << std::endl;
         std::cout << "10. Выйти из программы \n" << std::endl;
         std::cout << "Введите номер пункта меню: ";
 
@@ -229,14 +292,49 @@ int main() {
             break;
         }
         case 6:
+        {
+            if (pipes.kilometricMark == "Nothing") {
+                std::cout << "Труба не задана, нечего сохранить! \n";
+            }
+            else {
+                SAVE_pipe(pipes);
+            }
+            break;
+        }
+        case 7:
+        {
+            if (station.name == "Nothing") {
+                std::cout << "КС не задана, нечего сохранить! \n";
+
+            }
+            else {
+                SAVE_CS(station);
+            }
+            break;
+        }
+        case 8:
+        {
+            LOAD_pipe(pipes);
+            pipe_info(pipes);
+            break;
+        }
+        case 9:
+        {
+            LOAD_CS(station);
+            CS_info(station);
+            break;
+        }
+        case 10:
+        {
+            return 0;
+            break;
+        }
         default: {
-            std::cout << "Неверный выбор. Попробуйте еще раз." << std::endl;
+            std::cout << "Неверный выбор. Попробуйте еще раз. \n" << std::endl;
             break;
         }
         }
 
-        std::cout << std::endl;
     }
-
     return 0;
 }
