@@ -17,6 +17,74 @@ struct CompressorStation {
     int activatedShops = 0; // Количество цехов в работе
     double efficiency = 0.0; // Эффективность (обобщающий показатель)
 };
+int check_int(int max, int low) {
+    int z;
+    std::cin >> z;
+    std::cin.ignore();
+    while (true) {
+        if (std::cin.fail()) {
+            std::cout << "Error. Not an integer or a character is entered! Try again: ";
+            std::cin.clear();
+            while (std::cin.get() != '\n');
+        }
+        else if (z < low) {
+            std::cout << "Error. A negative number or zero is entered! Try again: ";
+        }
+        else if (max != 0 && z > max) {
+            std::cout << "Error. A number greater than the maximum has been entered! Try again: ";
+        }
+        else {
+            break;
+        }
+        std::cin >> z;
+        std::cin.ignore();
+    }
+    return z;
+}
+float floatcheck(int max, float low) {
+    float z;
+    std::cin >> z;
+    std::cin.ignore();
+    while (true) {
+        if (std::cin.fail()) {
+            std::cout << "Error. Not an integer or a character is entered! Try again: ";
+            std::cin.clear();
+            while (std::cin.get() != '\n');
+        }
+        else if (z < low) {
+            std::cout << "Error. A negative number or zero is entered! Try again: ";
+        }
+        else if (max != 0 && z > max) {
+            std::cout << "Error. A number greater than the maximum has been entered! Try again: ";
+        }
+        else {
+            break;
+        }
+        std::cin >> z;
+        std::cin.ignore();
+    }
+    return z;
+}
+bool boolCheck() {
+    int inp; 
+    while (true) {
+        std::cin >> inp;
+
+        if (std::cin.fail()) {
+            std::cout << "Error. Not an integer entered! Try again." << std::endl;
+            std::cin.clear();
+            std::cin.ignore(); 
+        }
+        else if (inp != 0 && inp != 1) {
+            std::cout << "Error. Please enter either 0 or 1! Try again." << std::endl;
+        }
+        else {
+            break; 
+        }
+    }
+
+    return static_cast<bool>(inp);
+}
 Pipe addPipe() {
     Pipe newPipe;
     std::cout << "Введите километровую отметку: ";
@@ -24,17 +92,14 @@ Pipe addPipe() {
     std::getline(std::cin, newPipe.kilometricMark);
 
     std::cout << "Введите длину трубы (км): ";
-    std::cin >> newPipe.length;
+    newPipe.length = floatcheck(0, 0.1);
 
     std::cout << "Введите диаметр трубы (мм): ";
-    std::cin >> newPipe.diameter;
+    newPipe.diameter = check_int(0, 1);
 
     std::cout << "Признак «в ремонте» (0 - нет, 1 - да): ";
     int repairStatus;
-    std::cin >> repairStatus;
-    newPipe.isUnderRepair = (repairStatus == 1);
-
-    
+    newPipe.isUnderRepair = boolCheck();
     std::cout << "Труба успешно добавлена." << std::endl;
     return newPipe;
 }
@@ -43,11 +108,11 @@ CompressorStation Add_station() { //2. Добавить КС
     std::cout << "Назовите свою КС: " << std::endl;
     std::cin >> new_station.name;
     std::cout << "Укажите количество цехов: " << std::endl;
-    std::cin >> new_station.totalShops;
+    new_station.totalShops = check_int(0, 1);
     std::cout << "Укажите количество РАБОЧИХ цехов: " << std::endl;
-    std::cin >> new_station.activatedShops;
+    new_station.activatedShops = check_int(0, 1);
     std::cout << "Укажите эффективность КС(В процентах): " << std::endl;
-    std::cin >> new_station.efficiency;
+    new_station.efficiency = floatcheck(0,0.1);
     return new_station;
 }
 
@@ -57,7 +122,7 @@ void pipe_info(Pipe new_pipe) { //информация о трубах
         std::cout << "Отсутствуют..." << std::endl;
     }
     else {
-        std::cout << "Имя: " << new_pipe.kilometricMark << std::endl;
+        std::cout << "Километровая марка: " << new_pipe.kilometricMark << std::endl;
         std::cout << "Длина: " << new_pipe.length << " метров." << std::endl;
         std::cout << "Диаметр: " << new_pipe.diameter << " миллиметров." << std::endl;
         if (new_pipe.isUnderRepair == 0) {
@@ -80,117 +145,39 @@ void CS_info(CompressorStation newcs) { //информация о КС
         std::cout << "Эффективность: " << newcs.efficiency << " %" << std::endl;
     }
 }
-void edit_pipe(Pipe new_pipe) { //4. Редактировать трубу 
-    int num_pipe = 0, new_lenght, new_diameter;
-    std::string new_kilometricMark_pipe;
-    if (new_pipe.kilometricMark == "Nothing") {
-        std::cout << "Отсутствует труба для редактирования \n";
-        
+void edit_Pipe(Pipe& P) {
+    int m = 0;
+    if (P.diameter > 0)
+    {
+        std::cout << "Select the parameter you want to edit: " << std::endl << "1) 'Under repair' status" << std::endl << "0) Exit to menu" << std::endl << "Command number: ";
+        m = check_int(1, 0);
+        if (m == 0)
+            return;
+        std::cout << "Old pipe status: under repair " << std::boolalpha << P.isUnderRepair << std::endl;
+        std::cout << "Select the new pipe status: " << std::endl << "0) Not under repair" << std::endl << "1) Under repair" << std::endl << "Enter the command number: ";
+        P.isUnderRepair = check_int(1, 0);
     }
     else {
-        bool new_repair;
-        std::cout << "Что хотите поменять?" << std::endl;
-        std::cout << "1. Километровая марка;" << std::endl;
-        std::cout << "2. Длина" << std::endl;
-        std::cout << "3. Диаметр " << std::endl;
-        std::cout << "4. Режим" << std::endl;
-        std::cin >> num_pipe;
-        switch (num_pipe)
-        {
-        case 1:
-        {
-            std::cout << "Введите новую километровую марку: " << std::endl;
-            std::cin >> new_kilometricMark_pipe;
-            new_pipe.kilometricMark = new_kilometricMark_pipe;
-            break;
-        }
-        case 2:
-        {
-            std::cout << "Укажите длину трубы: " << std::endl;
-            std::cin >> new_lenght;
-            new_pipe.length = new_lenght;
-            break;
-        }
-        case 3:
-        {
-            std::cout << "Укажите диаметр трубы: " << std::endl;
-            std::cin >> new_diameter;
-            new_pipe.diameter = new_diameter;
-            break;
-        }
-        case 4:
-        {
-            std::cout << "Укажите режим трубы:" << std::endl;
-            std::cout << "0. Готов;" << std::endl;
-            std::cout << "1. В ремонте" << std::endl;
-            std::cin >> new_repair;
-            new_pipe.isUnderRepair = new_repair;
-            break;
-        }
-        default:
-        {
-            std::cout << "Произошла ошибка. Попробуем снова..." << std::endl;
-            edit_pipe(new_pipe);
-        }
-        }
-        pipe_info(new_pipe);
+        std::cout << "You haven't added a pipe yet and cannot view its parameters. Please configure the pipe in the menu (option 1)" << std::endl;
     }
-    
 }
-void edit_CS(CompressorStation newst) { //4. Редактировать КС 
-    int newTotal_shops, newActivated_shops, newEfficiency;
-    std::string newName;
-    if (newst.name == "Nothing") {
-        std::cout << "Отсутствует КС для редактирования \n";
+void edit_CS(CompressorStation& CS) {
+    int m = 0;
+    if (CS.totalShops > 0)
+    {
+        std::cout << "Select the parameter you want to edit: " << std::endl << "1) Number of workshops in operation" << std::endl << "0) Exit to menu" << std::endl << "Command number: ";
+        m = check_int(1, 0);
+        if (m == 0)
+            return;
+        std::cout << "Total number of workshops: " << CS.totalShops << "; Old number of workshops in operation: " << CS.totalShops << std::endl;
+        std::cout << "Enter the new number of workshops in operation: ";
+        CS.totalShops = check_int(CS.totalShops, 0);
     }
     else {
-        int numCS = 0;
-        std::cout << "Что хотите поменять?" << std::endl;
-        std::cout << "1. Имя:" << std::endl;
-        std::cout << "2. Количество цехов: " << std::endl;
-        std::cout << "3. Кол-во цехов в работе: " << std::endl;
-        std::cout << "4. Эффективность" << std::endl;
-        std::cin >> numCS;
-        switch (numCS)
-        {
-        case 1:
-        {
-            std::cout << "Введите название КС: " << std::endl;
-            std::cin >> newName;
-            newst.name = newName;
-            break;
-        }
-        case 2:
-        {
-            std::cout << "Укажите количество всех цехов: " << std::endl;
-            std::cin >> newTotal_shops;
-            newst.totalShops = newTotal_shops;
-            break;
-        }
-        case 3:
-        {
-            std::cout << "Укажите кол-во цехов в работе: " << std::endl;
-            std::cin >> newActivated_shops;
-            newst.activatedShops = newActivated_shops;
-            break;
-        }
-        case 4:
-        {
-            std::cout << "Укажите эффективность КС:" << std::endl;
-            std::cin >> newEfficiency;
-            newst.efficiency = newEfficiency;
-            break;
-        }
-        default:
-        {
-            std::cout << "Произошла ошибка. Попробуем снова..." << std::endl;
-            edit_CS(newst);
-        }
-        }
-        CS_info(newst);
+        std::cout << "You haven't added a CS yet and cannot view its parameters. Please configure the CS in the menu (option 2)" << std::endl;
     }
-    
 }
+
 void save__Pipe(const Pipe& p, std::ofstream& fout)
 {
     fout << p.kilometricMark << std::endl
@@ -361,7 +348,7 @@ int main() {
         }
         case 2:
         {
-            edit_pipe(pipes);
+            edit_Pipe(pipes);
             break;
         }
         case 3:
