@@ -41,7 +41,8 @@ int check_int(int max, int low) {
     }
     return z;
 }
-float floatcheck(int max, float low) {
+
+float floatcheck(float max, float low) {
     float z;
     std::cin >> z;
     std::cin.ignore();
@@ -88,8 +89,7 @@ bool boolCheck() {
 Pipe addPipe() {
     Pipe newPipe;
     std::cout << "Введите километровую отметку: ";
-    std::cin.ignore(); // Очистка буфера ввода
-    std::getline(std::cin, newPipe.kilometricMark);
+    std::getline(std::cin >>std::ws, newPipe.kilometricMark);
 
     std::cout << "Введите длину трубы (км): ";
     newPipe.length = floatcheck(0, 0.1);
@@ -106,17 +106,17 @@ Pipe addPipe() {
 CompressorStation Add_station() { //2. Добавить КС 
     CompressorStation new_station;
     std::cout << "Назовите свою КС: " << std::endl;
-    std::cin >> new_station.name;
+    std::getline(std::cin >> std::ws, new_station.name);
     std::cout << "Укажите количество цехов: " << std::endl;
     new_station.totalShops = check_int(0, 1);
     std::cout << "Укажите количество РАБОЧИХ цехов: " << std::endl;
-    new_station.activatedShops = check_int(0, 1);
+    new_station.activatedShops = check_int(0, -1);
     std::cout << "Укажите эффективность КС(В процентах): " << std::endl;
-    new_station.efficiency = floatcheck(0,0.1);
+    new_station.efficiency = floatcheck(0,0.0);
     return new_station;
 }
 
-void pipe_info(Pipe new_pipe) { //информация о трубах
+void pipe_info(Pipe new_pipe) { //информация о трубах//!!!!
     std::cout << "Информация о вашей трубе:" << std::endl;
     if (new_pipe.kilometricMark == "Nothing") {
         std::cout << "Отсутствуют..." << std::endl;
@@ -133,7 +133,7 @@ void pipe_info(Pipe new_pipe) { //информация о трубах
         }
     }
 }
-void CS_info(CompressorStation newcs) { //информация о КС
+void CS_info(CompressorStation newcs) { //информация о КС //!!!!
     std::cout << "Информация о вашей компрессорной станции:" << std::endl;
     if (newcs.name == "Nothing") {
         std::cout << "Отсутствуют..." << std::endl;
@@ -174,7 +174,7 @@ void edit_CS(CompressorStation& CS) {
         CS.totalShops = check_int(CS.totalShops, 0);
     }
     else {
-        std::cout << "You haven't added a CS yet and cannot view its parameters. Please configure the CS in the menu (option 2)" << std::endl;
+        std::cout << "" << std::endl;
     }
 }
 
@@ -257,8 +257,8 @@ void SAVE_CS(CompressorStation station) {
     }
 }*/
 void load_Pipe(Pipe& p, std::ifstream& flin)
-{
-    flin >> p.kilometricMark;
+{;
+    std::getline(flin>>std::ws, p.kilometricMark);
     flin >> p.length;
     flin >> p.diameter;
     flin >> p.isUnderRepair;
@@ -266,7 +266,7 @@ void load_Pipe(Pipe& p, std::ifstream& flin)
 
 void load_CS(CompressorStation& cs, std::ifstream& flin)
 {
-    flin >> cs.name;
+    std::getline(flin >> std::ws, cs.name);
     flin >> cs.totalShops;
     flin >> cs.activatedShops;
     flin >> cs.efficiency;
@@ -304,6 +304,40 @@ void loadFile(Pipe& p, CompressorStation& cs){
         std::cout << "Ошибка загрузки" << std::endl;
     flin.close(); 
 }
+/*void loadPipe(Pipe& P, std::ifstream& in)
+{
+    if (in.is_open()) {
+        std::getline(,in >> P.kilometricMark);
+        in >> P.length >> P.diameter >> P.isUnderRepair;
+    }
+}
+void loadCS(CompressorStation& CS, std::ifstream& in) {
+    if (in.is_open()) {
+        std::getline(in >> ws, CS.name);
+        in >> CS.totalShops >> CS.activatedShops >> CS.efficiency;
+    }
+}
+void load(Pipe& P, CompressorStation& CS) {
+    std::ifstream in("saved_Pipe_CS.txt");
+    if (!in.is_open())
+    {
+        std::cout << "not found" << std::endl;
+        return;
+    }
+    P = {};
+    CS = {};
+    std::string finde;
+    while (std::getline(in >> ws, finde)) {
+        if (finde == "data Pipe:") {
+            loadPipe(P, in);
+            std::cout << "The data from the pipe file is recorded" << std::endl;
+        }
+        if (finde == "data CS:") {
+            loadCS(CS, in);
+            std::cout << "The data from the CS file is recorded" << std::endl;
+        }
+    }
+}*/
 
 
 int main() {
@@ -323,20 +357,11 @@ int main() {
         std::cout << "7. Загрузить информацию о трубах и КС из файла" << std::endl;
         std::cout << "8. Выйти из программы \n" << std::endl;
 
-        int choice;
+        int choice;//!!!
         while (true) {
             std::cout << "Введите номер пункта меню: ";
-            if (std::cin >> choice) {
-                // Проверка, что введено целое число
-                break;
-            }
-            else {
-                // Очистка ошибки в потоке ввода
-                std::cin.clear();
-                // Удаление всех символов из потока ввода до конца строки
-                std::cin.ignore(100, '\n');
-                std::cout << "Неверный ввод. Введите целое число.\n";
-            }
+            choice = check_int(0, 0);
+            break;
         }
 
 
@@ -353,6 +378,7 @@ int main() {
         }
         case 3:
         {
+
             pipe_info(pipes);
             std::cout << "\n" << std::endl;
             CS_info(station);
