@@ -3,7 +3,6 @@
 #include "windows.h"
 #include <vector>
 #include <fstream> 
-#include <csignal>
 
 struct Pipe {
     std::string kilometricMark = "Nothing"; // Километровая отметка 
@@ -125,7 +124,7 @@ void pipe_info(Pipe new_pipe) { //информация о трубах//!!!!
         std::cout << "Километровая марка: " << new_pipe.kilometricMark << std::endl;
         std::cout << "Длина: " << new_pipe.length << " метров." << std::endl;
         std::cout << "Диаметр: " << new_pipe.diameter << " миллиметров." << std::endl;
-        if (new_pipe.isUnderRepair == 0) {
+        if (new_pipe.isUnderRepair == 0) {//!!
             std::cout << "Статус: Готов" << std::endl;
         }
         else {
