@@ -4,6 +4,7 @@
 #include <fstream> 
 #include "Pipe.h"
 #include "CStation.h"
+#include "LOG.h"
 
 using namespace std;
 using namespace pipe;
@@ -54,7 +55,8 @@ int main() {
     Pipe pipes;
     SetConsoleOutputCP(1251);
     SetConsoleCP(1251);
-
+    LOG::Logger logger("logfile.txt"); // Создание экземпляра логгера
+    logger.log(LOG::INFO, "Program started."); // Пример логирования
     while (1) {
         cout << "Меню:" << endl;
         cout << "1. Добавить трубу" << endl;
