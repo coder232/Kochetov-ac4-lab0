@@ -3,29 +3,36 @@
 #include "windows.h"
 #include <fstream> 
 #include "Pipe.h"
-#include "CStation.h"
-#include "LOG.h"
+#include "CStations.h"
+#include <vector>
 
 using namespace std;
-using namespace pipe;
-using namespace CStation;
 
-void saveToFile(const Pipe& p, const CompressorStation& cs) {
-    std::ofstream fout("saved_Pipe_CS.txt");
+void saveToFile(const vector<Pipe>& pipes, const vector<CompressorStation>& cs) {
+    ofstream fout("saved_Pipe_CS.txt");
     if (fout) {
-        int npipe = (p.getMark() == "Nothing") ? 0 : 1;
-        fout << npipe << endl;
-        if (npipe > 0) p.save(fout);
-
-        int nCS = (cs.getName() == "Nothing") ? 0 : 1;
-        fout << nCS << endl;
-        if (nCS > 0) cs.save(fout);
-
-        cout << "Труба сохранена = " << npipe << endl
-            << "КС сохранена = " << nCS << endl;
+        if (pipes.size() == 0)
+            cout << "Нет труб для загрузки" << endl;
+        else {
+            fout << pipes.size() << endl;
+            for (const auto& p : pipes) {
+                p.save(fout);
+            }
+        }
+        if (cs.size() == 0)
+            cout << "Нет КС для загрузки" << endl;
+        else {
+            fout << cs.size() << endl;
+            for (const auto& CS : cs) {
+                CS.save(fout);
+            }
+        }
+    
+        cout << "Труб сохранено: " << pipes.size() << endl
+            << "КС сохранена = " << cs.size() << endl;
     }
     else {
-        cout << "Ошибка загрузки в файл" << endl;
+        cout << "Ошибка загрузки файла" << endl;
     }
 }
 
@@ -48,11 +55,29 @@ void loadFromFile(Pipe& p, CompressorStation& cs) {
         cout << "Ошибка загрузки" << endl;
     }
 }
-
+void pipeCScheck(const vector<CompressorStation>& station, const vector<Pipe>&  pipes) {
+    if (pipes.size() == 0) {
+        cout << "Отсутствуют трубы" << endl;
+    }
+    else {
+        for (size_t i = 0; i < pipes.size(); ++i) {
+            cout << i + 1 << ". Труба " << i + 1 << endl;
+        }
+    }
+    if (station.size() == 0) {
+        cout << "Отсутствуют КС" << endl;
+    }
+    else {
+        for (const auto& Station : station) {
+            Station.CS_info();
+            cout << endl;
+        }
+    }
+}
 
 int main() {
-    CompressorStation station;
-    Pipe pipes;
+    vector<CompressorStation> station;
+    vector<Pipe>  pipes;
     SetConsoleOutputCP(1251);
     SetConsoleCP(1251);
     LOG::Logger logger("logfile.txt"); // Создание экземпляра логгера
@@ -79,40 +104,60 @@ int main() {
         switch (choice) {
         case 1:
         {
-            pipes = Pipe::addPipe();
+            Pipe newPipes = Pipe::addPipe();
+            pipes.push_back(newPipes);
             break;
         }
         case 2:
         {
-            pipes.editPipe();
+            // Выбор трубы для редактирования
+            int index;
+            cout << "Введите номер трубы для редактирования: ";
+            cin >> index;
+            if (index > 0 && index <= pipes.size()) {
+                pipes[index - 1].editPipe(); // Редактируем выбранную трубу
+            }
+            else {
+                cout << "Неверный номер трубы." << endl;
+            }
             break;
         }
         case 3:
         {
-
-            pipes.pipe_info();
-            cout << "\n" << endl;
-            station.CS_info();
+            pipeCScheck(pipes, station);
             break;
         }
         case 4:
         {
-            station = CompressorStation::Add_station();
+            CompressorStation newst = CompressorStation::Add_station();
+            station.push_back(newst);
             break;
         }
         case 5:
         {
-            station.editCS();
+            for (size_t i = 0; i < station.size(); ++i) {
+                cout << i + 1 << ". КС " << i + 1 << endl;
+            }
+            int index;
+            cout << "Введите номер КС для редактирования: ";
+            cin >> index;
+            if (index > 0 && index <= station.size()) {
+                station[index - 1].editCS(); // Редактируем выбранную трубу
+            }
+            else {
+                cout << "Неверный номер KC." << endl;
+            }
             break;
         }
         case 6:
         {
+        
         saveToFile(pipes, station);
         break;
         }
         case 7:
         {
-        loadFromFile(pipes, station);
+        //loadFromFile(pipes, station);
         break;
         }
         case 8:

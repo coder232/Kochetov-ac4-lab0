@@ -1,27 +1,110 @@
+#include "CStations.h"
+#include "Utilities.h"
+int CStations::maxId = 0;
+
+string CStations::GetName() const
+{
+    return Name;
+}
+
+int CStations::GetWorkshops() const
+{
+    return totalWorkshops;
+}
+
+int CStations::GetActWorkshops() const
+{
+    return ActWorkshops;
+}
+
+int CStations::GetPercentOfNonActiveWorkshops() const
+{
+    return (totalWorkshops - ActWorkshops) * 100 / totalWorkshops;
+}
+
+void CStations::PrintWorkshops() const
+{
+    std::cout << "В этот момент " << ActWorkshops <<
+        " из " << totalWorkshops << " станций работают" << endl;
+}
+
+istream& operator >> (istream& in, CStations& newCStations)
+{
+    newCStations.Id = ++newCStations.maxId;
+    cout << "ID: " << newCStations.Id << endl;
+    cout << "Введи имя КС: ";
+    in.ignore();
+    getline(in, newCStations.Name);
+    cout << "Введи номер всех цехов: ";
+    newCStations.totalWorkshops = GetCorrectData(1, 12);
+    cout << "Введи номер активных цехов: ";
+    newCStations.ActWorkshops = GetCorrectData(1, newCStations.totalWorkshops);
+    cout << "Введи эффекивность цехов (от 0 до 1 дробными числами) ";
+    newCStations.Efficiency = GetCorrectData(0.0, 1.0);
+    return in;
+}
+
+ostream& operator << (ostream& out, const CStations& newCStations)
+{
+    if (newCStations.Name == "Nothing")
+    {
+        out << "Нет доступных КС!\n";
+    }
+    else
+    {
+        out << "ID: " << newCStations.Id << "\tИмя: " << newCStations.Name << "\tЦеха: " << newCStations.totalWorkshops
+            << "\tЦеха в работе: " << newCStations.ActWorkshops << "\tЭффективность: " << newCStations.Efficiency << endl;
+    }
+    return out;
+}
+
+ifstream& operator >> (ifstream& flin, CStations& newCStations)
+{
+    flin >> newCStations.Id;
+    newCStations.maxId = newCStations.Id;
+    flin.ignore();
+    getline(flin, newCStations.Name);
+    flin >> newCStations.totalWorkshops;
+    flin >> newCStations.ActWorkshops;
+    flin >> newCStations.Efficiency;
+    return flin;
+}
+
+ofstream& operator << (ofstream& fout, const CStations& newCStations)
+{
+    fout << newCStations.Id << endl;
+    fout << newCStations.Name << endl;
+    fout << newCStations.totalWorkshops << endl;
+    fout << newCStations.ActWorkshops << endl;
+    fout << newCStations.Efficiency << endl;
+    return fout;
+}
+
+/*
 #pragma once
 #include <iostream>
 #include <fstream>
 #include <string>
 using namespace std;
-namespace CStation {
-    class CompressorStation {
+namespace CCStations {
+    class CompressorCStations {
     private:
         string name = "Nothing"; //Название компрессорной станции
         int totalShops = 0; // Общее количество цехов
         int activatedShops = 0; // Количество цехов в работе
         double efficiency = 0.0; // Эффективность (обобщающий показатель)
     public:
-        static CompressorStation Add_station() { //2. Добавить КС 
-            CompressorStation new_station;
+        static CompressorCStations Add_CStations() { //2. Добавить КС 
+            CompressorCStations new_CStations;
             cout << "Назовите свою КС: " << endl;
-            getline(cin >> ws, new_station.name);
+            getline(cin >> ws, new_CStations.name);
             cout << "Укажите количество цехов: " << endl;
-            new_station.totalShops = check_int(0, 1);
+            new_CStations.totalShops = check_int(0, 1);
             cout << "Укажите количество РАБОЧИХ цехов: " << endl;
-            new_station.activatedShops = check_int(0, -1);
+            new_CStations.activatedShops = check_int(0, -1);
             cout << "Укажите эффективность КС(В процентах): " << endl;
-            new_station.efficiency = floatcheck(0, 0.0);
-            return new_station;
+            new_CStations.efficiency = floatcheck(0, 0.0);
+            return new_CStations;
         }
         void CS_info() const { //информация о КС //!!!!
             cout << "Информация о вашей компрессорной станции:" << endl;
@@ -163,4 +246,4 @@ namespace CStation {
         }
         return z;
     }
-}
+}*/
