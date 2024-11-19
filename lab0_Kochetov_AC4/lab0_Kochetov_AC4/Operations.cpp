@@ -85,38 +85,38 @@ void Operations::searchPipe(unordered_map<int, Pipe>& Pipes)
 			cout << "\nВведите километровую марку (имя) трубы: ";
 			cin.ignore();
 			getline(cin, pipeName);
-			vector<Pipe*> editPipes;
+			vector<Pipe*> searchPipes;
 			for (auto& elem : Pipes)
 			{
 				if (elem.second.GetKM().find(pipeName) != string::npos)
 				{
 					cout << elem.second;
-					editPipes.push_back(&(elem.second));
+					searchPipes.push_back(&(elem.second));
 				}
 			}
-			if (editPipes.empty())
+			if (searchPipes.empty())
 				cout << "Нет трубы с таким именем!" << endl;
 			else
-				EditPipes(editPipes);
+				EditPipes(searchPipes);
 		}
 		break;
 		case 2:
 		{
 			cout << "Введите статуc \"в ремонте\" для трубы: ";
 			bool repairStatus = GetCorrectData(false, true);
-			vector<Pipe*> editPipes;
+			vector<Pipe*> searchPipes;
 			for (auto& elem : Pipes)
 			{
 				if (elem.second.GetRepairStatus() == repairStatus)
 				{
 					cout << elem.second;
-					editPipes.push_back(&(elem.second));
+					searchPipes.push_back(&(elem.second));
 				}
 			}
-			if (editPipes.empty())
+			if (searchPipes.empty())
 				cout << "Нет трубы с таким статусом!" << endl;
 			else
-				EditPipes(editPipes);
+				EditPipes(searchPipes);
 		}
 		break;
 		case 3:
@@ -199,19 +199,19 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 			cout << "Введите имя КС : ";
 			cin.ignore();
 			getline(cin, stationName);
-			vector<CStations*> editStations;
+			vector<CStations*> searchStations;
 			for (auto& elem : Stations)
 			{
 				if (elem.second.GetName().find(stationName) != string::npos)
 				{
 					cout << elem.second;
-					editStations.push_back(&(elem.second));
+					searchStations.push_back(&(elem.second));
 				}
 			}
-			if (editStations.empty())
+			if (searchStations.empty())
 				cout << "Нет КС с таким именем!" << endl;
 			else
-				EditCStations(editStations);
+				EditCStations(searchStations);
 		}
 		break;
 		case 2:
@@ -223,7 +223,7 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 			cout << "2. Равно (=%)" << endl;
 			cout << "3. Больше (>%)" << endl;
 			cout << "Пожалуйста, введите ваш выбор: ";
-			vector<CStations*> editStations;
+			vector<CStations*> searchStations;
 			switch (GetCorrectData(1, 3))
 			{
 			case 1:
@@ -233,7 +233,7 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 					if (elem.second.GetPercentOfNonActiveWorkshops() < percent)
 					{
 						cout << elem.second;
-						editStations.push_back(&(elem.second));
+						searchStations.push_back(&(elem.second));
 					}
 				}
 			}
@@ -245,7 +245,7 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 					if (elem.second.GetPercentOfNonActiveWorkshops() == percent)
 					{
 						cout << elem.second;
-						editStations.push_back(&(elem.second));
+						searchStations.push_back(&(elem.second));
 					}
 				}
 			}
@@ -257,16 +257,16 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 					if (elem.second.GetPercentOfNonActiveWorkshops() > percent)
 					{
 						cout << elem.second;
-						editStations.push_back(&(elem.second));
+						searchStations.push_back(&(elem.second));
 					}
 				}
 			}
 			break;
 			}
-			if (editStations.empty())
+			if (searchStations.empty())
 				cout << "Нет КС с таким процентом!" << endl;
 			else
-				EditCStations(editStations);
+				EditCStations(searchStations);
 		}
 		break;
 		case 3:

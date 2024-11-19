@@ -3,6 +3,10 @@
 
 int Pipe::maxId = 0;
 
+int Pipe::GetId() 
+{
+    return Id;
+}
 int Pipe::GetDiameter() const
 {
     return Diameter;
@@ -37,8 +41,9 @@ istream& operator >> (istream& in, Pipe& newPipe)
     in.ignore();
     getline(in, newPipe.kilometricMark);
     cout << "Введите длину трубы(в метрах): ";
-    newPipe.Length = GetCorrectData(100.0, 1200.0);
+    newPipe.Length = GetCorrectData(0.0, 10000.0);
     cout << "Введите диаметр трубы (в миллиметрах): ";
+    newPipe.Diameter = GetCorrectData(0.0, 1000.0);
     cout << "Введите статус \"в ремонте\": ";
     newPipe.isUnderRepair = GetCorrectData(0, 1);
     return in;
@@ -52,8 +57,8 @@ ostream& operator << (ostream& out, const Pipe& newPipe)
     }
     else
     {
-        out << "ID: " << newPipe.Id << "\tКилометровая марка: " << newPipe.kilometricMark << "\tДлина: " << newPipe.Length
-            << "\tДиаметр: " << newPipe.Diameter << "\tСтатус \"в ремонте\": " << newPipe.isUnderRepair << endl;
+        out << "ID: " << newPipe.Id << ";" << "\tКилометровая марка: " << newPipe.kilometricMark << ";" << "\tДлина: " << newPipe.Length
+            << ";" << "\tДиаметр: " << newPipe.Diameter << ";" << "\tСтатус \"в ремонте\": " << newPipe.isUnderRepair << ";" << endl;
     }
     return out;
 }
@@ -78,6 +83,7 @@ ofstream& operator << (ofstream& fout, const Pipe& newPipe)
     fout << newPipe.Diameter << endl;
     fout << newPipe.isUnderRepair << endl;
     return fout;
+}
 /*class Pipe
 {
 private:

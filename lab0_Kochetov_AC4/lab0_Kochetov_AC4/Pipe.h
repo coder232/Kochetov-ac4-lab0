@@ -14,8 +14,9 @@ public:
 	double Length = 0.0;
 	int Diameter = 0;
 	bool isUnderRepair = false;
+	
 	int GetDiameter() const;
-
+	int GetId();
 	string GetKM() const;
 	bool GetRepairStatus();
 	void PrintRepairStatus();

@@ -13,6 +13,7 @@ public:
 	int ActWorkshops = 0;
 	double Efficiency = 0.0;
 
+	int GetId();
 	string GetName() const;
 	int GetWorkshops() const;
 	int GetActWorkshops() const;

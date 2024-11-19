@@ -2,6 +2,10 @@
 #include "Utilities.h"
 int CStations::maxId = 0;
 
+int CStations::GetId()
+{
+    return Id;
+}
 string CStations::GetName() const
 {
     return Name;
@@ -21,11 +25,10 @@ int CStations::GetPercentOfNonActiveWorkshops() const
 {
     return (totalWorkshops - ActWorkshops) * 100 / totalWorkshops;
 }
-
 void CStations::PrintWorkshops() const
 {
-    std::cout << "¬ этот момент " << ActWorkshops <<
-        " из " << totalWorkshops << " станций работают" << endl;
+    cout << "в данный момент " << ActWorkshops <<
+        " из " << totalWorkshops << " цехов наход€тс€ в работе" << endl;
 }
 
 istream& operator >> (istream& in, CStations& newCStations)
@@ -36,7 +39,7 @@ istream& operator >> (istream& in, CStations& newCStations)
     in.ignore();
     getline(in, newCStations.Name);
     cout << "¬веди номер всех цехов: ";
-    newCStations.totalWorkshops = GetCorrectData(1, 12);
+    newCStations.totalWorkshops = GetCorrectData(1, 10000);
     cout << "¬веди номер активных цехов: ";
     newCStations.ActWorkshops = GetCorrectData(1, newCStations.totalWorkshops);
     cout << "¬веди эффекивность цехов (от 0 до 1 дробными числами) ";
@@ -52,8 +55,8 @@ ostream& operator << (ostream& out, const CStations& newCStations)
     }
     else
     {
-        out << "ID: " << newCStations.Id << "\t»м€: " << newCStations.Name << "\t÷еха: " << newCStations.totalWorkshops
-            << "\t÷еха в работе: " << newCStations.ActWorkshops << "\tЁффективность: " << newCStations.Efficiency << endl;
+        out << "ID: " << newCStations.Id << ";" << "\t»м€: " << newCStations.Name << ";" << "\t÷еха: " << newCStations.totalWorkshops
+            << ";" << "\t÷еха в работе: " << newCStations.ActWorkshops << ";" << "\tЁффективность: " << newCStations.Efficiency << ";" << endl;
     }
     return out;
 }
