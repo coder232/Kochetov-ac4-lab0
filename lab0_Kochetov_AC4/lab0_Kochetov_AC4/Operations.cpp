@@ -11,57 +11,30 @@
 
 using namespace std;
 
-void Operations::EditPipe(Pipe& pipe)
-{
-	cout << "Статус \"В ремонте\" будет изменен, вы уверены?" << endl;
-	cout << "1. Да" << endl;
-	cout << "2. Нет" << endl;
-	cout << "Введите ваш выбор: ";
-	switch (GetCorrectData(1, 2))
-	{
-	case 1:
-	{
-		cout << "Введите статус \"в ремонте\": ";
-		bool pipeRepair = GetCorrectData(false, true);;
-		pipe.isUnderRepair = pipeRepair;
-		cout << "ID: " << pipe.Id << ": ";
-		pipe.PrintRepairStatus();
-		break;
-	}
-	case 2:
-	{
-		return;
-	}
-	default:
-	{
-		cout << "Пожалуйста,введите корректную команду!\n" << endl;
-		break;
-	}
-	}
-}
-
-void Operations::EditPipes(vector<Pipe*>& pipes)
+void Operations::EditPipes(unordered_map<int, Pipe>& pipes)
 {
 	cout << "\nВы хотите изменить статус \"в ремонте\" у выбранных труб?" << endl;
 	cout << "1. Да" << endl;
 	cout << "2. Нет" << endl;
+	cout << "3. Изменить часть найденных" << endl;
 	cout << "Введите ваш выбор: ";
-	switch (GetCorrectData(1, 2))
+	switch (GetCorrectData(1, 3))
 	{
 	case 1:
 	{
 		cout << "Введите статус \"в ремонте\" для выбранных труб: ";
 		bool repSt = GetCorrectData(false, true);
 
-		for (auto& pipe : pipes)
+		for (auto& [id, p] : pipes)
 		{
-			pipe->isUnderRepair = repSt;
+			p.SetRepairStatus(repSt);
 		}
 		cout << "\nСтатус был изменен для всех труб!" << endl;
 		break;
 	}
 	case 2:
 		return;
+	
 	default:
 		cout << "Пожалуйста, введите корректные данные!" << endl;
 		break;
@@ -84,16 +57,16 @@ void Operations::searchPipe(unordered_map<int, Pipe>& Pipes)
 			string pipeName;
 			cout << "\nВведите километровую марку (имя) трубы: ";
 			cin.ignore();
-			getline(cin, pipeName);
-			vector<Pipe*> searchPipes;
+			getline(cin, pipeName);//!!!!!!!!!!!!!!!!!!!!!!
+			unordered_map<int, Pipe> searchPipes;
 			for (auto& elem : Pipes)
 			{
-				if (elem.second.GetKM().find(pipeName) != string::npos)
+				if (elem.second.Getname().find(pipeName) != string::npos)
 				{
 					cout << elem.second;
-					searchPipes.push_back(&(elem.second));
+					searchPipes[elem.first] = elem.second;
 				}
-			}
+			}	
 			if (searchPipes.empty())
 				cout << "Нет трубы с таким именем!" << endl;
 			else
@@ -104,13 +77,13 @@ void Operations::searchPipe(unordered_map<int, Pipe>& Pipes)
 		{
 			cout << "Введите статуc \"в ремонте\" для трубы: ";
 			bool repairStatus = GetCorrectData(false, true);
-			vector<Pipe*> searchPipes;
+			unordered_map<int, Pipe> searchPipes;
 			for (auto& elem : Pipes)
 			{
 				if (elem.second.GetRepairStatus() == repairStatus)
 				{
 					cout << elem.second;
-					searchPipes.push_back(&(elem.second));
+					searchPipes[elem.first] = elem.second;
 				}
 			}
 			if (searchPipes.empty())
@@ -130,48 +103,19 @@ void Operations::searchPipe(unordered_map<int, Pipe>& Pipes)
 	}
 }
 
-void Operations::EditCStation(CStations& station)
-{
-	cout << "Номер активных цехов будет изменен, вы уверены?" << endl;
+void Operations::EditCStations(unordered_map<int, CStations>& stations) {
+	cout << "\nВы точно хотите изменить число активных цехов?" << endl;
 	cout << "1. Да" << endl;
 	cout << "2. Нет" << endl;
 	cout << "Введите ваш выбор: ";
-	switch (GetCorrectData(1, 2))
-	{
-	case 1:
-	{
-		cout << "Введите номер активных цехов: ";
-		station.ActWorkshops = GetCorrectData(1, station.GetWorkshops());
-		cout << "ID: " << station.Id << ": ";
-		station.PrintWorkshops();
-	}
-	case 2:
-		return;
-	default:
-	{
-		cout << "Введите корректную команду!\n" << endl;
-		break;
-	}
-	}
-}
-
-void Operations::EditCStations(vector<CStations*> stations)
-{
-	cout << "\nВы точно хотите число активных цехов?" << endl;
-	cout << "1. Да" << endl;
-	cout << "2. Нет" << endl;
-	cout << "Введите ваш выбор: ";
-	switch (GetCorrectData(1, 2))
-	{
-	case 1:
-	{
-		cout << "введите процент неактивных цехов: ";
+	switch (GetCorrectData(1, 2)) {
+	case 1: {
+		cout << "Введите процент неактивных цехов: ";
 		float percent = GetCorrectData(0.0, 100.0);
-		for (auto& station : stations)
-		{
-			station->ActWorkshops = round(station->totalWorkshops * (100 - percent) / 100);
+		for (auto& [id, st] : stations) {
+			st.SetActWorkshops(round(st.GetWorkshops() * (100 - percent) / 100));
 		}
-		cout << "\nНомер активных цехов был изменен для всех КС!" << endl;
+		cout << "\nЧисло активных цехов было изменено для всех КС!" << endl;
 		break;
 	}
 	case 2:
@@ -199,13 +143,13 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 			cout << "Введите имя КС : ";
 			cin.ignore();
 			getline(cin, stationName);
-			vector<CStations*> searchStations;
+			unordered_map<int, CStations> searchStations;
 			for (auto& elem : Stations)
 			{
-				if (elem.second.GetName().find(stationName) != string::npos)
+				if (elem.second.Getname().find(stationName) != string::npos)
 				{
 					cout << elem.second;
-					searchStations.push_back(&(elem.second));
+					searchStations[elem.first] = elem.second;
 				}
 			}
 			if (searchStations.empty())
@@ -223,7 +167,7 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 			cout << "2. Равно (=%)" << endl;
 			cout << "3. Больше (>%)" << endl;
 			cout << "Пожалуйста, введите ваш выбор: ";
-			vector<CStations*> searchStations;
+			unordered_map<int, CStations> searchStations;
 			switch (GetCorrectData(1, 3))
 			{
 			case 1:
@@ -233,7 +177,7 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 					if (elem.second.GetPercentOfNonActiveWorkshops() < percent)
 					{
 						cout << elem.second;
-						searchStations.push_back(&(elem.second));
+						searchStations[elem.first] = elem.second;
 					}
 				}
 			}
@@ -245,7 +189,7 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 					if (elem.second.GetPercentOfNonActiveWorkshops() == percent)
 					{
 						cout << elem.second;
-						searchStations.push_back(&(elem.second));
+						searchStations[elem.first] = elem.second;
 					}
 				}
 			}
@@ -257,7 +201,7 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 					if (elem.second.GetPercentOfNonActiveWorkshops() > percent)
 					{
 						cout << elem.second;
-						searchStations.push_back(&(elem.second));
+						searchStations[elem.first] = elem.second;
 					}
 				}
 			}

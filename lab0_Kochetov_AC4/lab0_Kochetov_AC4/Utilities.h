@@ -3,9 +3,12 @@
 #include <unordered_map>
 using namespace std;
 
+#define INPUT_LINE(in, str) getline(in>>std::ws, str); \
+						std::cerr << str << std::endl
+#define PRINT_PARAM(out, x) out<< #x << "=" << x << std::endl
 template <typename T>
 T GetCorrectData(T min, T max)
-{
+	{
 	T x;
 	while ((std::cin >> x).fail() || std::cin.peek() != '\n' || x < min || x > max)
 	{
@@ -34,26 +37,47 @@ T& SelectElement(unordered_map<int, T>& notes, int key)
 
 
 template <typename K>
-unordered_map<int, K> removeKeyIfExists(std::unordered_map<int, K>& notes, int key) {
-	if (notes.find(key) != notes.end()) {
-		notes.erase(key);
-		cout << "Удаление прошло успешно!" << endl;
-		return notes;
-	}
-	else {
-		cout << "Ключ " << key << " Не существует!\nПожалуйста, введите существующий ключ: ";
-		int newKey;
-		cin >> newKey;
-		return removeKeyIfExists(notes, newKey);
+unordered_map<int, K> removeKeyIfExists(unordered_map<int, K>& notes, int key) {
+	while (true) {
+		auto it = notes.find(key);
+		if (it != notes.end()) {
+			notes.erase(it);
+			cout << "Удаление прошло успешно!" << endl;
+			return notes;
+		}
+		else {
+			cout << "Ключ " << key << " не существует!\nПожалуйста, введите существующий ключ: ";
+			cin >> key;//!!!!!!!!!
+		}
 	}
 }
 
+string inputString(istream& in = cin);
+
+template <typename T> // template to check different types of variables
+T inputNumber(istream& in = cin) // check type
+{
+	T x;
+	while ((in >> x).fail()	// check type
+		|| in.peek() != '\n')	// is buffer empty (int/float check)
+	{
+		in.clear();
+		in.ignore(10000, '\n');
+		cout << "ERROR wrong type --> try again: ";
+		cerr << x << endl; // LOGGING!!!!!!!
+	}
+	cerr << x << endl; // LOGGING!!!!!!!
+	return x;
+}
+template int inputNumber(istream& in);
+template double inputNumber(istream& in);
+
 class redirect_output_wrapper
 {
-	std::ostream& stream;
+	std::ios& stream;
 	std::streambuf* const old_buf;
 public:
-	redirect_output_wrapper(std::ostream& src)
+	redirect_output_wrapper(std::ios& src)
 		:old_buf(src.rdbuf()), stream(src)
 	{
 	}
@@ -66,3 +90,4 @@ public:
 		stream.rdbuf(dest.rdbuf());
 	}
 };
+

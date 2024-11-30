@@ -3,6 +3,7 @@
 #include <cstdlib>  
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <chrono>
 #include <format>
 #include <queue>
@@ -10,41 +11,116 @@
 #include "CStations.h"
 #include "Operations.h"
 #include "Utilities.h"
+#include "filtherr.h"
 using namespace std;
 using namespace chrono;
 
+int MainMenu()
+{
+	cout << endl << "Меню:" << endl;
+	cout << "1. Добавить трубу" << endl;
+	cout << "2. Добавить КС" << endl;
+	cout << "3. Показать все объекты" << endl;
+	cout << "4. Редактировать трубу" << endl;
+	cout << "5. Редактировать КС" << endl;
+	cout << "6. Удалить трубу" << endl;
+	cout << "7. Удалить КС" << endl;
+	cout << "8. Сохранить" << endl;
+	cout << "9. Загрузить" << endl;
+	cout << "10. Поиск по фильтру" << endl;
+	cout << "0. Выход" << endl;
+	cout << endl << "Пожалуйста, введите номер команды: ";
+	return GetCorrectData(0, 10);
+}
+
+void save_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations) {
+	cout << "\n[8] Сохранение в файл" << endl;
+	ofstream fout;
+	string fileName;
+	cout << "Пожалуйста, введите имя файла: ";
+	cin.ignore();
+	getline(cin, fileName);///!!!!!!!!!!!!!!!!
+	fout.open(fileName);
+	if (!fout.is_open())
+	{
+		cout << "Ошибка открытия файла!" << endl;
+	}
+	else {
+		fout << Pipes.size() << endl;
+		for (const auto& elem : Pipes)
+			fout << elem.second;
+		cout << "Данные о трубах были успешно сохранены!" << endl;
+
+		fout << Stations.size() << endl;
+		for (const auto& elem : Stations)
+			fout << elem.second;
+		cout << "Данные о КС быи успешно сохранены!" << endl;
+	}
+	fout.close();
+}
+void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations) {
+	cout << "\n[9] Загрузка из файла" << endl;
+	ifstream fin;
+	string fileName;
+	cout << "Пожалуйста, введите имя файла: ";
+	cin.ignore();
+	getline(cin, fileName);//!!!!!!!!!!!!!
+	fin.open(fileName);
+	if (!fin.is_open())
+	{
+		cout << "Ошибка открытия файла!" << endl;
+	}
+	else {
+		int pipesSize;
+		fin >> pipesSize;
+		if (pipesSize == 0)
+			cout << "Нет информации о трубах!" << endl;
+		else {
+			cout << "Данные о трубах были успешно загружены!" << endl;
+		}
+		while (pipesSize-- > 0)
+		{
+			Pipe pipe0;
+			fin >> pipe0;
+			Pipes.insert({ pipe0.GetId(), pipe0 });
+		}
+
+		int csSize;
+		fin >> csSize;
+		if (csSize == 0)
+			cout << "нет информации о КС!" << endl;
+		else {
+			cout << "Данные о КС были успешно загружены!" << endl;
+		}
+		while (csSize-- > 0)
+		{
+			CStations station0;
+			fin >> station0;
+			Stations.insert({ station0.GetId(), station0 });
+		}
+		fin.close();
+	}
+}
+
+using std::cin;
+using std::cout;
+
 int main()
 {
-	//setlocale(LC_ALL, "Russian");
 	system("chcp 1251");
 	redirect_output_wrapper cerr_out(cerr);
 	string time = format("{:%d_%m_%Y %H_%M_%OS}", system_clock::now() + hours(3));
 	ofstream logfile("log_" + time);
-	if (logfile)
+	if (logfile) {
 		cerr_out.redirect(logfile);
-
-	Pipe pipe0;
-	CStations station0;
+		//cout << endl << "CIN:" << endl;
+		//cin_out.redirect(logfile);
+	}
 	unordered_map<int, Pipe> Pipes = {};
 	unordered_map<int, CStations> Stations = {};
 	Operations operations;
-
-	int num = 0;
 	while (true) {
-		cout << endl << "Меню:" << endl;
-		cout << "1. Добавить трубу" << endl;
-		cout << "2. Добавить КС" << endl;
-		cout << "3. Показать все объекты" << endl;
-		cout << "4. Редактировать трубу" << endl;
-		cout << "5. Редактировать КС" << endl;
-		cout << "6. Удалить трубу" << endl;
-		cout << "7. Удалить КС" << endl;
-		cout << "8. Сохранить" << endl;
-		cout << "9. Загрузить" << endl;
-		cout << "10. Поиск по фильтру" << endl;
-		cout << "0. Выход" << endl;
-		cout << endl << "Пожалуйста, введите номер команды: ";
-		switch (GetCorrectData(0, 10))
+		switch (MainMenu())
 		{
 		case 1:
 		{
@@ -65,15 +141,9 @@ int main()
 		case 3:
 		{
 			cout << "\n[3] Показать все объекты: " << endl;
-			if (Pipes.size() == 0)
-				cout << "\n0 труб было добавлено!" << endl;
-			for (const auto& elem : Pipes)
-				cout << elem.second;
-
-			if (Stations.size() == 0)
-				cout << "\n0 станций было добавлено!" << endl;
-			for (const auto& elem : Stations)
-				cout << elem.second;
+			
+			Operations::Show(Pipes);
+			Operations::Show(Stations);
 			break;
 		}
 		case 4:
@@ -84,9 +154,16 @@ int main()
 			else {
 				cout << "\n[4] редактирование трубы: " << endl;
 				cout << "Введите ID: ";
-				int indPipes = Pipes.size();
-				Pipe& pipe0 = SelectElement(Pipes, GetCorrectData(1, indPipes));
-				operations.EditPipe(pipe0);
+				int id;
+				while (true) {
+					id = GetCorrectData(1, numeric_limits<int>::max());
+					if (Pipes.find(id) != Pipes.end())
+						break;
+					else
+						cout << "Трубы с таким id не существует, попробуйте еще раз!" << endl;
+				}
+				Pipe& pipe0 = SelectElement(Pipes, id);
+				pipe0.EditPipe();
 			}
 			break;
 		}
@@ -98,10 +175,18 @@ int main()
 			else {
 				cout << "\n[5] Редактирование КС: " << endl;
 				cout << "Введите ID: ";
-				int indStations = Stations.size();
-				CStations& station0 = SelectElement(Stations, GetCorrectData(1, indStations));
-				operations.EditCStation(station0);
+				int id;
+				while (true) {
+					id = GetCorrectData(1, numeric_limits<int>::max());
+					if (Stations.find(id) != Stations.end())
+						break;
+					else
+						cout << "КС с таким id не существует, попробуйте еще раз!" << endl;
+				}
+				CStations& station0 = SelectElement(Stations, id);
+				station0.EditCStation();
 			}
+			
 			break;
 		}
 		case 6:
@@ -113,7 +198,7 @@ int main()
 				cout << "\n[6] Удаление трубы: " << endl;
 				cout << "Введите ID: ";
 				int key0;
-				cin >> key0;
+				cin >> key0;///!!!!!!!!!!!!!!!!!
 				removeKeyIfExists(Pipes, key0);
 			}
 			break;
@@ -127,81 +212,19 @@ int main()
 				cout << "\n[7] удаление станции: " << endl;
 				cout << "Введите ID: ";
 				int key0;
-				cin >> key0;
+				cin >> key0;//!!!!!!!!!!!!
 				removeKeyIfExists(Stations, key0);
 			}
 			break;
 		}
 		case 8:
 		{
-			cout << "\n[8] Сохранение в файл" << endl;
-			ofstream fout;
-			string fileName;
-			cout << "Пожалуйста, введите имя файла: ";
-			cin.ignore();
-			getline(cin, fileName);
-			fout.open(fileName);
-			if (!fout.is_open())
-			{
-				cout << "Ошибка открытия файла!" << endl;
-			}
-			else {
-				fout << Pipes.size() << endl;
-				for (const auto& elem : Pipes)
-					fout << elem.second;
-				cout << "Данные о трубах были успешно сохранены!" << endl;
-
-				fout << Stations.size() << endl;
-				for (const auto& elem : Stations)
-					fout << elem.second;
-				cout << "Данные о КС быи успешно сохранены!" << endl;
-			}
-			fout.close();
+			save_d(Pipes, Stations);
 			break;
 		}
 		case 9:
 		{
-			cout << "\n[9] Загрузка из файла" << endl;
-			ifstream fin;
-			string fileName;
-			cout << "Пожалуйста, введите имя файла: ";
-			cin.ignore();
-			getline(cin, fileName);
-			fin.open(fileName);
-			if (!fin.is_open())
-			{
-				cout << "Ошибка открытия файла!" << endl;
-			}
-			else {
-				int pipesSize;
-				fin >> pipesSize;
-				if (pipesSize == 0)
-					cout << "Нет информации о трубах!" << endl;
-				else {
-					cout << "Данные о трубах были успешно загружены!" << endl;
-				}
-				while (pipesSize-- > 0)
-				{
-					Pipe pipe0;
-					fin >> pipe0;
-					Pipes.insert({ pipe0.GetId(), pipe0 });
-				}
-
-				int csSize;
-				fin >> csSize;
-				if (csSize == 0)
-					cout << "нет информации о КС!" << endl;
-				else {
-					cout << "Данные о КС были успешно загружены!" << endl;
-				}
-				while (csSize-- > 0)
-				{
-					CStations station0;
-					fin >> station0;
-					Stations.insert({ station0.GetId(), station0 });
-				}
-				fin.close();
-			}
+			load_d(Pipes, Stations);
 			break;
 		}
 		case 10:
@@ -214,11 +237,22 @@ int main()
 				cout << "2. КС" << endl;
 				cout << "3. Вернуться" << endl;
 				cout << "Введите команду: ";
-				switch (GetCorrectData(1, 3))
+				int cm = GetCorrectData(1, 3);
+				string pipename;
+				unordered_set<int>nameResults;
+				switch (cm)
 				{
 				case 1:
+					
 					cout << "\nПоиск труб..." << endl;
-					operations.searchPipe(Pipes);
+					cin.ignore();
+					getline(cin, pipename);
+					nameResults = findByFilter(Pipes, checkByName, pipename);
+
+					cout << "Трубы с именем '" << pipename << "':" << endl;
+					for (int id : nameResults) {
+						cout << Pipes[id] << endl;
+					}
 					break;
 				case 2:
 					cout << "\nПоиск КС..." << endl;

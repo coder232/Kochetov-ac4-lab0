@@ -7,19 +7,22 @@ using namespace std;
 
 class Pipe
 {
-public:
+private:
 	static int maxId;
 	int Id;
 	string kilometricMark = "Nothing";
 	double Length = 0.0;
 	int Diameter = 0;
 	bool isUnderRepair = false;
-	
+
+public:	
 	int GetDiameter() const;
 	int GetId();
-	string GetKM() const;
+	string Getname() const;
 	bool GetRepairStatus();
+	void SetRepairStatus(bool status);
 	void PrintRepairStatus();
+	void EditPipe();
 
 	friend ostream& operator << (ostream& out, const Pipe& newPipe);
 	friend istream& operator >> (istream& in, Pipe& newPipe);

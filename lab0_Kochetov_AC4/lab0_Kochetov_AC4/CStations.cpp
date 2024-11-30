@@ -6,7 +6,7 @@ int CStations::GetId()
 {
     return Id;
 }
-string CStations::GetName() const
+string CStations::Getname() const
 {
     return Name;
 }
@@ -25,12 +25,41 @@ int CStations::GetPercentOfNonActiveWorkshops() const
 {
     return (totalWorkshops - ActWorkshops) * 100 / totalWorkshops;
 }
+void CStations::SetActWorkshops(int cnt)
+{
+    ActWorkshops = cnt;
+}
+
 void CStations::PrintWorkshops() const
 {
     cout << "в данный момент " << ActWorkshops <<
         " из " << totalWorkshops << " цехов находятся в работе" << endl;
 }
-
+void CStations::EditCStation()
+{
+    cout << "Номер активных цехов будет изменен, вы уверены?" << endl;
+    cout << "1. Да" << endl;
+    cout << "2. Нет" << endl;
+    cout << "Введите ваш выбор: ";
+    switch (GetCorrectData(1, 2))
+    {
+    case 1:
+    {
+        cout << "Введите номер активных цехов: ";
+        int active = GetCorrectData(1, totalWorkshops);
+        SetActWorkshops(active);
+        PrintWorkshops();
+        
+    }
+    case 2:
+        return;
+    default:
+    {
+        cout << "Введите корректную команду!\n" << endl;
+        break;
+    }
+    }
+}
 istream& operator >> (istream& in, CStations& newCStations)
 {
     newCStations.Id = ++newCStations.maxId;
@@ -38,6 +67,7 @@ istream& operator >> (istream& in, CStations& newCStations)
     cout << "Введи имя КС: ";
     in.ignore();
     getline(in, newCStations.Name);
+    INPUT_LINE(in, newCStations.Name);
     cout << "Введи номер всех цехов: ";
     newCStations.totalWorkshops = GetCorrectData(1, 10000);
     cout << "Введи номер активных цехов: ";
@@ -57,6 +87,11 @@ ostream& operator << (ostream& out, const CStations& newCStations)
     {
         out << "ID: " << newCStations.Id << ";" << "\tИмя: " << newCStations.Name << ";" << "\tЦеха: " << newCStations.totalWorkshops
             << ";" << "\tЦеха в работе: " << newCStations.ActWorkshops << ";" << "\tЭффективность: " << newCStations.Efficiency << ";" << endl;
+        PRINT_PARAM(cout, newCStations.Id);
+        PRINT_PARAM(cout, newCStations.Name);
+        PRINT_PARAM(cout, newCStations.totalWorkshops);
+        PRINT_PARAM(cout, newCStations.ActWorkshops);
+        PRINT_PARAM(cout, newCStations.Efficiency);
     }
     return out;
 }

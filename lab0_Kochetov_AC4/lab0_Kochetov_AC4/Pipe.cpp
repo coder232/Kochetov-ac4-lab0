@@ -12,7 +12,7 @@ int Pipe::GetDiameter() const
     return Diameter;
 }
 
-string Pipe::GetKM() const
+string Pipe::Getname() const
 {
     return kilometricMark;
 }
@@ -21,16 +21,43 @@ bool Pipe::GetRepairStatus()
 {
     return isUnderRepair;
 }
+void Pipe::SetRepairStatus(bool status)
+{
+    isUnderRepair = status;
+}
 
 void Pipe::PrintRepairStatus()
 {
-    if (isUnderRepair == true)
+    if (GetRepairStatus() == true)
     {
         cout << "Труба в ремонте [=1]\n";
     }
     else
         cout << "Труба в исправном состоянии [=0]\n";
 }
+void Pipe::EditPipe() {
+    cout << "Статус \"В ремонте\" будет изменен, вы уверены?" << endl;
+    cout << "1. Да" << endl;
+    cout << "2. Нет" << endl;
+    cout << "Введите ваш выбор: ";
+    switch (GetCorrectData(1, 2))
+    {
+    case 1:
+    {
+        cout << "Введите статус \"в ремонте\": ";
+        bool pipeRepair = GetCorrectData(false, true);
+        SetRepairStatus(pipeRepair);
+        PrintRepairStatus();
+        break;
+    }
+    case 2:
+        return;
+    default:
+        cout << "Пожалуйста, введите корректную команду!\n" << endl;
+        break;
+    }
+}
+
 
 
 istream& operator >> (istream& in, Pipe& newPipe)
@@ -40,6 +67,7 @@ istream& operator >> (istream& in, Pipe& newPipe)
     cout << "Введите километровую марку(имя): ";
     in.ignore();
     getline(in, newPipe.kilometricMark);
+    INPUT_LINE(in, newPipe.kilometricMark);
     cout << "Введите длину трубы(в метрах): ";
     newPipe.Length = GetCorrectData(0.0, 10000.0);
     cout << "Введите диаметр трубы (в миллиметрах): ";
@@ -59,6 +87,10 @@ ostream& operator << (ostream& out, const Pipe& newPipe)
     {
         out << "ID: " << newPipe.Id << ";" << "\tКилометровая марка: " << newPipe.kilometricMark << ";" << "\tДлина: " << newPipe.Length
             << ";" << "\tДиаметр: " << newPipe.Diameter << ";" << "\tСтатус \"в ремонте\": " << newPipe.isUnderRepair << ";" << endl;
+        PRINT_PARAM(cout, newPipe.Id);
+        PRINT_PARAM(cout, newPipe.kilometricMark);
+        PRINT_PARAM(cout, newPipe.Diameter);
+        PRINT_PARAM(cout, newPipe.isUnderRepair);
     }
     return out;
 }

@@ -135,9 +135,11 @@
     </ClCompile>
     <ClCompile Include="Operations.cpp" />
     <ClCompile Include="Pipe.cpp" />
+    <ClCompile Include="Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CStations.h" />
+    <ClInclude Include="filtherr.h" />
     <ClInclude Include="Operations.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="Pipe.h" />
