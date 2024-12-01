@@ -41,18 +41,18 @@ unordered_set<int> findByFilter(unordered_map<int, T>& map, Filter<T, U> f, U pa
 unordered_set<int> selectByChosenFilter(unordered_map<int, Pipe>& map)
 {
 	unordered_set<int> res;
-	cout << "Choose filter:\n1. Name\n2. Repair status" << endl;
+	cout << "Выберите фильтр:\n1. Имя\n2. Статус исправности" << endl;
 	switch (GetCorrectData(1, 2))
 	{
 	case 1:
 	{
-		cout << "Enter part of name: "; string name = inputString();
+		cout << "Введите часть имени: "; string name = inputString();
 		res = findByFilter(map, checkByName, name);
 		break;
 	}
 	case 2:
 	{
-		cout << "Enter status \"in repair\": "; bool status = GetCorrectData<int>(0, 1);
+		cout << "Введите статус \"В ремонте\": "; bool status = GetCorrectData<int>(0, 1);
 		res = findByFilter(map, checkByRepairStatus, status);
 		break;
 	}
@@ -65,18 +65,18 @@ unordered_set<int> selectByChosenFilter(unordered_map<int, Pipe>& map)
 unordered_set<int> selectByChosenFilter(unordered_map<int, CStations>& map)
 {
 	unordered_set<int> res;
-	cout << "Choose filter:\n1. Name\n2. Percent % of ws in use" << endl;
+	cout << "Выберите фильтр : \n1.Имя\n2.Процент % цехов в использовании" << endl;
 	switch (GetCorrectData(1, 2))
 	{
 	case 1:
 	{
-		cout << "Enter part of name: "; string name = inputString();
+		cout << "Введите часть имени: "; string name = inputString();
 		res = findByFilter(map, checkByName, name);
 		break;
 	}
 	case 2:
 	{
-		cout << "Enter percent %: "; double percent = GetCorrectData<double>(0.0, 100.0);
+		cout << "Введите процент %: "; double percent = GetCorrectData<double>(0.0, 100.0);
 		res = findByFilter(map, checkByWSInWork, percent);
 		break;
 	}

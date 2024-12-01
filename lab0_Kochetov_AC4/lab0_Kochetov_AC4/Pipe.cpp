@@ -66,7 +66,6 @@ istream& operator >> (istream& in, Pipe& newPipe)
     cout << "ID: " << newPipe.Id << endl;
     cout << "Введите километровую марку(имя): ";
     in.ignore();
-    getline(in, newPipe.kilometricMark);
     INPUT_LINE(in, newPipe.kilometricMark);
     cout << "Введите длину трубы(в метрах): ";
     newPipe.Length = GetCorrectData(0.0, 10000.0);
@@ -87,10 +86,10 @@ ostream& operator << (ostream& out, const Pipe& newPipe)
     {
         out << "ID: " << newPipe.Id << ";" << "\tКилометровая марка: " << newPipe.kilometricMark << ";" << "\tДлина: " << newPipe.Length
             << ";" << "\tДиаметр: " << newPipe.Diameter << ";" << "\tСтатус \"в ремонте\": " << newPipe.isUnderRepair << ";" << endl;
-        PRINT_PARAM(cout, newPipe.Id);
+        /*PRINT_PARAM(cout, newPipe.Id);
         PRINT_PARAM(cout, newPipe.kilometricMark);
         PRINT_PARAM(cout, newPipe.Diameter);
-        PRINT_PARAM(cout, newPipe.isUnderRepair);
+        PRINT_PARAM(cout, newPipe.isUnderRepair);*/
     }
     return out;
 }
@@ -100,7 +99,7 @@ ifstream& operator >> (ifstream& flin, Pipe& newPipe)
     flin >> newPipe.Id;
     newPipe.maxId = newPipe.Id;
     flin.ignore();
-    getline(flin, newPipe.kilometricMark);
+    INPUT_LINE(flin, newPipe.kilometricMark);
     flin >> newPipe.Length;
     flin >> newPipe.Diameter;
     flin >> newPipe.isUnderRepair;

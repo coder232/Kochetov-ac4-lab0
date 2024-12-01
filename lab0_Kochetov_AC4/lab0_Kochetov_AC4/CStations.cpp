@@ -66,7 +66,6 @@ istream& operator >> (istream& in, CStations& newCStations)
     cout << "ID: " << newCStations.Id << endl;
     cout << "Введи имя КС: ";
     in.ignore();
-    getline(in, newCStations.Name);
     INPUT_LINE(in, newCStations.Name);
     cout << "Введи номер всех цехов: ";
     newCStations.totalWorkshops = GetCorrectData(1, 10000);
@@ -87,11 +86,11 @@ ostream& operator << (ostream& out, const CStations& newCStations)
     {
         out << "ID: " << newCStations.Id << ";" << "\tИмя: " << newCStations.Name << ";" << "\tЦеха: " << newCStations.totalWorkshops
             << ";" << "\tЦеха в работе: " << newCStations.ActWorkshops << ";" << "\tЭффективность: " << newCStations.Efficiency << ";" << endl;
-        PRINT_PARAM(cout, newCStations.Id);
+        /*PRINT_PARAM(cout, newCStations.Id);
         PRINT_PARAM(cout, newCStations.Name);
         PRINT_PARAM(cout, newCStations.totalWorkshops);
         PRINT_PARAM(cout, newCStations.ActWorkshops);
-        PRINT_PARAM(cout, newCStations.Efficiency);
+        PRINT_PARAM(cout, newCStations.Efficiency);*/
     }
     return out;
 }

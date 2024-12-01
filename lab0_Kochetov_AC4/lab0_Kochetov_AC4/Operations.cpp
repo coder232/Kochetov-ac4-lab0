@@ -11,30 +11,29 @@
 
 using namespace std;
 
-void Operations::EditPipes(unordered_map<int, Pipe>& pipes)
-{
+void Operations::EditPipes(unordered_map<int, Pipe>& pipes, const unordered_set<int>& selectedPipes) {
 	cout << "\nВы хотите изменить статус \"в ремонте\" у выбранных труб?" << endl;
 	cout << "1. Да" << endl;
 	cout << "2. Нет" << endl;
-	cout << "3. Изменить часть найденных" << endl;
 	cout << "Введите ваш выбор: ";
-	switch (GetCorrectData(1, 3))
-	{
-	case 1:
-	{
+
+	switch (GetCorrectData(1, 3)) {
+	case 1: {
 		cout << "Введите статус \"в ремонте\" для выбранных труб: ";
 		bool repSt = GetCorrectData(false, true);
 
-		for (auto& [id, p] : pipes)
-		{
-			p.SetRepairStatus(repSt);
+		for (int id : selectedPipes) {
+			auto it = pipes.find(id);
+			if (it != pipes.end()) {
+				it->second.SetRepairStatus(repSt);
+			}
 		}
-		cout << "\nСтатус был изменен для всех труб!" << endl;
+		cout << "\nСтатус был изменен для выбранных труб!" << endl;
 		break;
 	}
 	case 2:
 		return;
-	
+
 	default:
 		cout << "Пожалуйста, введите корректные данные!" << endl;
 		break;
@@ -69,8 +68,8 @@ void Operations::searchPipe(unordered_map<int, Pipe>& Pipes)
 			}	
 			if (searchPipes.empty())
 				cout << "Нет трубы с таким именем!" << endl;
-			else
-				EditPipes(searchPipes);
+			//else
+				//EditPipes(searchPipes);
 		}
 		break;
 		case 2:
@@ -88,8 +87,8 @@ void Operations::searchPipe(unordered_map<int, Pipe>& Pipes)
 			}
 			if (searchPipes.empty())
 				cout << "Нет трубы с таким статусом!" << endl;
-			else
-				EditPipes(searchPipes);
+			//else
+				//EditPipes(searchPipes);
 		}
 		break;
 		case 3:
@@ -103,7 +102,7 @@ void Operations::searchPipe(unordered_map<int, Pipe>& Pipes)
 	}
 }
 
-void Operations::EditCStations(unordered_map<int, CStations>& stations) {
+void Operations::EditCStations(unordered_map<int, CStations>& stations, unordered_set<int>& selected_stations) {
 	cout << "\nВы точно хотите изменить число активных цехов?" << endl;
 	cout << "1. Да" << endl;
 	cout << "2. Нет" << endl;
@@ -111,9 +110,14 @@ void Operations::EditCStations(unordered_map<int, CStations>& stations) {
 	switch (GetCorrectData(1, 2)) {
 	case 1: {
 		cout << "Введите процент неактивных цехов: ";
-		float percent = GetCorrectData(0.0, 100.0);
-		for (auto& [id, st] : stations) {
-			st.SetActWorkshops(round(st.GetWorkshops() * (100 - percent) / 100));
+		float percent = GetCorrectData(0.0f, 100.0f);
+		for (int id : selected_stations) {
+			auto it = stations.find(id);
+			if (it != stations.end()) {
+				int totalWorkshops = it->second.GetWorkshops();
+				int activeWorkshops = round(totalWorkshops * (100 - percent) / 100.0f);
+				it->second.SetActWorkshops(activeWorkshops);
+			}
 		}
 		cout << "\nЧисло активных цехов было изменено для всех КС!" << endl;
 		break;
@@ -121,7 +125,7 @@ void Operations::EditCStations(unordered_map<int, CStations>& stations) {
 	case 2:
 		return;
 	default:
-		cout << "Введите корректные данные!";
+		cout << "Введите корректные данные!" << endl;
 		break;
 	}
 }
@@ -154,8 +158,8 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 			}
 			if (searchStations.empty())
 				cout << "Нет КС с таким именем!" << endl;
-			else
-				EditCStations(searchStations);
+			//else
+				//EditCStations(searchStations);
 		}
 		break;
 		case 2:
@@ -209,8 +213,8 @@ void Operations::searchCStations(unordered_map<int, CStations>& Stations)
 			}
 			if (searchStations.empty())
 				cout << "Нет КС с таким процентом!" << endl;
-			else
-				EditCStations(searchStations);
+			//else
+				//EditCStations(searchStations);
 		}
 		break;
 		case 3:

@@ -101,6 +101,67 @@ void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stat
 		fin.close();
 	}
 }
+void filtering(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, Operations& operations) {
+	bool flag = true;
+	while (flag) {
+		cout << "\n[10] Поиск" << endl;
+		cout << "Что вы хотите найти?" << endl;
+		cout << "1. Трубы" << endl;
+		cout << "2. КС" << endl;
+		cout << "3. Вернуться" << endl;
+		cout << "Введите команду: ";
+		int cm = GetCorrectData(1, 3);
+		unordered_set<int> nameResults;
+		switch (cm) {
+		case 1: {
+			nameResults = selectByChosenFilter(Pipes);
+			if (nameResults.empty()) {
+				cout << "Нет труб с таким именем!" << endl;
+			}
+			else {
+				cout << "Найдены трубы:" << endl;
+				// Вывод идентификаторов найденных труб
+				for (int id : nameResults) {
+					auto it = Pipes.find(id);
+					if (it != Pipes.end()) {
+						cout << "Труба с ID " << id << ": ";
+						cout << it->second;
+					}
+				}
+				cout << endl;
+				operations.EditPipes(Pipes, nameResults);
+			}
+			break;
+		}
+		case 2: {
+			cout << "\nПоиск КС..." << endl;
+			nameResults = selectByChosenFilter(Stations);
+			if (nameResults.empty()) {
+				cout << "Нет КС с таким именем!" << endl;
+			}
+			else {
+				cout << "Найдены КС:" << endl;
+				for (int id : nameResults) {
+					auto it = Stations.find(id);
+					if (it != Stations.end()) {
+						cout << "KC с ID " << id << ": ";
+						cout << it->second;
+					}
+				}
+				cout << endl;
+				operations.EditCStations(Stations, nameResults);
+			}
+			break;
+		}
+		case 3:
+			flag = false;
+			break;
+		default:
+			cout << "Пожалуйста, введите точную команду!" << endl;
+			break;
+		}
+	}
+}
 
 using std::cin;
 using std::cout;
@@ -229,43 +290,7 @@ int main()
 		}
 		case 10:
 		{
-			bool flag = true;
-			while (flag) {
-				cout << "\n[10] Поиск" << endl;
-				cout << "Что вы хотите найти?" << endl;
-				cout << "1. Трубы" << endl;
-				cout << "2. КС" << endl;
-				cout << "3. Вернуться" << endl;
-				cout << "Введите команду: ";
-				int cm = GetCorrectData(1, 3);
-				string pipename;
-				unordered_set<int>nameResults;
-				switch (cm)
-				{
-				case 1:
-					
-					cout << "\nПоиск труб..." << endl;
-					cin.ignore();
-					getline(cin, pipename);
-					nameResults = findByFilter(Pipes, checkByName, pipename);
-
-					cout << "Трубы с именем '" << pipename << "':" << endl;
-					for (int id : nameResults) {
-						cout << Pipes[id] << endl;
-					}
-					break;
-				case 2:
-					cout << "\nПоиск КС..." << endl;
-					operations.searchCStations(Stations);
-					break;
-				case 3:
-					flag = false;
-					break;
-				default:
-					cout << "Пожалуйста, введите точную команду!" << endl;
-					break;
-				}
-			}
+			filtering(Pipes, Stations, operations);
 			break;
 		}
 		case 0:

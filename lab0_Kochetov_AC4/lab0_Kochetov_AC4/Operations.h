@@ -1,22 +1,17 @@
 #pragma once
 #include <unordered_map>
+#include <unordered_set>
 #include "Pipe.h"
 #include "CStations.h"
 
 class Operations
 {
 public:
-	int id_entry;
-	int id_pipe;
-	int id_out;
 
-	void EditPipe(Pipe& pipe);
-	void EditPipes(unordered_map<int, Pipe>& pipes);
+	void EditPipes(unordered_map<int, Pipe>& pipes,const unordered_set<int>& selectedPipes);
 	void searchPipe(unordered_map<int, Pipe>& Pipes);
 
-
-	void EditCStation(CStations& CStation);
-	void EditCStations(unordered_map <int, CStations>& CStations);
+	void EditCStations(unordered_map <int, CStations>& CStations, unordered_set<int>& selected_stations);
 	void searchCStations(unordered_map<int, CStations>& CStations);
 
 	template <typename T>
