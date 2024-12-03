@@ -9,10 +9,8 @@ class Operations
 public:
 
 	void EditPipes(unordered_map<int, Pipe>& pipes,const unordered_set<int>& selectedPipes);
-	void searchPipe(unordered_map<int, Pipe>& Pipes);
 
 	void EditCStations(unordered_map <int, CStations>& CStations, unordered_set<int>& selected_stations);
-	void searchCStations(unordered_map<int, CStations>& CStations);
 
 	template <typename T>
 	static void Show(std::unordered_map<int, T> objs)

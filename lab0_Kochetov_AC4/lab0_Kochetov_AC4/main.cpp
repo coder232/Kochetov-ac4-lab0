@@ -15,6 +15,7 @@
 using namespace std;
 using namespace chrono;
 
+
 int MainMenu()
 {
 	cout << endl << "Меню:" << endl;
@@ -32,14 +33,76 @@ int MainMenu()
 	cout << endl << "Пожалуйста, введите номер команды: ";
 	return GetCorrectData(0, 10);
 }
+void PipeEdit(unordered_map<int, Pipe>& Pipes) {
+	if (Pipes.size() == 0) {
+		cout << "\n0 труб доступно!" << endl;
+	}
+	else {
+		cout << "\n[4] редактирование трубы: " << endl;
+		cout << "Введите ID: ";
+		int id;
+		while (true) {
+			id = GetCorrectData(1, numeric_limits<int>::max());
+			if (Pipes.find(id) != Pipes.end())
+				break;
+			else
+				cout << "Трубы с таким id не существует, попробуйте еще раз!" << endl;
+		}
+		Pipe& pipe0 = SelectElement(Pipes, id);
+		pipe0.EditPipe();
+	}
+}
+
+void CSEdit(unordered_map<int, CStations>& Stations) {
+	if (Stations.size() == 0) {
+		cout << "\n0 КС доступно!" << endl;
+	}
+	else {
+		cout << "\n[5] Редактирование КС: " << endl;
+		cout << "Введите ID: ";
+		int id;
+		while (true) {
+			id = GetCorrectData(1, numeric_limits<int>::max());
+			if (Stations.find(id) != Stations.end())
+				break;
+			else
+				cout << "КС с таким id не существует, попробуйте еще раз!" << endl;
+		}
+		CStations& station0 = SelectElement(Stations, id);
+		station0.EditCStation();
+	}
+}
+void delPipe(unordered_map<int, Pipe>& Pipes) {
+	if (Pipes.size() == 0) {
+		cout << "\n0 труб доступно!" << endl;
+	}
+	else {
+		cout << "\n[6] Удаление трубы: " << endl;
+		cout << "Введите ID: ";
+		int key0;
+		key0 = GetCorrectData(1, findMaxId(Pipes));///!!!!!!!!!!!!!!!!!
+		removeKeyIfExists(Pipes, key0);
+	}
+}
+void delCS(unordered_map<int, CStations>& Stations) {
+	if (Stations.size() == 0) {
+		cout << "\n0 станций доступно!" << endl;
+	}
+	else {
+		cout << "\n[7] удаление станции: " << endl;
+		cout << "Введите ID: ";
+		int key0;
+		key0 = GetCorrectData(1, findMaxId(Stations));//!!!!!!!!!!!!
+		removeKeyIfExists(Stations, key0);
+	}
+}
 
 void save_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations) {
 	cout << "\n[8] Сохранение в файл" << endl;
 	ofstream fout;
 	string fileName;
 	cout << "Пожалуйста, введите имя файла: ";
-	cin.ignore();
-	getline(cin, fileName);///!!!!!!!!!!!!!!!!
+	INPUT_LINE(cin, fileName);///!!!!!!!!!!!!!!!!
 	fout.open(fileName);
 	if (!fout.is_open())
 	{
@@ -63,8 +126,7 @@ void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stat
 	ifstream fin;
 	string fileName;
 	cout << "Пожалуйста, введите имя файла: ";
-	cin.ignore();
-	getline(cin, fileName);//!!!!!!!!!!!!!
+	INPUT_LINE(cin, fileName);//!!!!!!!!!!!!!
 	fin.open(fileName);
 	if (!fin.is_open())
 	{
@@ -163,9 +225,6 @@ void filtering(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& S
 	}
 }
 
-using std::cin;
-using std::cout;
-
 int main()
 {
 	system("chcp 1251");
@@ -174,8 +233,6 @@ int main()
 	ofstream logfile("log_" + time);
 	if (logfile) {
 		cerr_out.redirect(logfile);
-		//cout << endl << "CIN:" << endl;
-		//cin_out.redirect(logfile);
 	}
 	unordered_map<int, Pipe> Pipes = {};
 	unordered_map<int, CStations> Stations = {};
@@ -209,73 +266,22 @@ int main()
 		}
 		case 4:
 		{
-			if (Pipes.size() == 0) {
-				cout << "\n0 труб доступно!" << endl;
-			}
-			else {
-				cout << "\n[4] редактирование трубы: " << endl;
-				cout << "Введите ID: ";
-				int id;
-				while (true) {
-					id = GetCorrectData(1, numeric_limits<int>::max());
-					if (Pipes.find(id) != Pipes.end())
-						break;
-					else
-						cout << "Трубы с таким id не существует, попробуйте еще раз!" << endl;
-				}
-				Pipe& pipe0 = SelectElement(Pipes, id);
-				pipe0.EditPipe();
-			}
+			PipeEdit(Pipes);
 			break;
 		}
 		case 5:
 		{
-			if (Stations.size() == 0) {
-				cout << "\n0 КС доступно!" << endl;
-			}
-			else {
-				cout << "\n[5] Редактирование КС: " << endl;
-				cout << "Введите ID: ";
-				int id;
-				while (true) {
-					id = GetCorrectData(1, numeric_limits<int>::max());
-					if (Stations.find(id) != Stations.end())
-						break;
-					else
-						cout << "КС с таким id не существует, попробуйте еще раз!" << endl;
-				}
-				CStations& station0 = SelectElement(Stations, id);
-				station0.EditCStation();
-			}
-			
+			CSEdit(Stations);
 			break;
 		}
 		case 6:
 		{
-			if (Pipes.size() == 0) {
-				cout << "\n0 труб доступно!" << endl;
-			}
-			else {
-				cout << "\n[6] Удаление трубы: " << endl;
-				cout << "Введите ID: ";
-				int key0;
-				cin >> key0;///!!!!!!!!!!!!!!!!!
-				removeKeyIfExists(Pipes, key0);
-			}
+			delPipe(Pipes);
 			break;
 		}
 		case 7:
 		{
-			if (Stations.size() == 0) {
-				cout << "\n0 станций доступно!" << endl;
-			}
-			else {
-				cout << "\n[7] удаление станции: " << endl;
-				cout << "Введите ID: ";
-				int key0;
-				cin >> key0;//!!!!!!!!!!!!
-				removeKeyIfExists(Stations, key0);
-			}
+			delCS(Stations);
 			break;
 		}
 		case 8:

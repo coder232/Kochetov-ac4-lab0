@@ -47,15 +47,32 @@ unordered_map<int, K> removeKeyIfExists(unordered_map<int, K>& notes, int key) {
 		}
 		else {
 			cout << "Ключ " << key << " не существует!\nПожалуйста, введите существующий ключ: ";
-			cin >> key;//!!!!!!!!!
+			key = GetCorrectData(1, findMaxId(notes));
 		}
 	}
 }
 
 string inputString(istream& in = cin);
 
-template <typename T> // template to check different types of variables
-T inputNumber(istream& in = cin) // check type
+template<typename K, typename V>
+K findMaxId(const std::unordered_map<K, V>& map) {
+	if (map.empty()) {
+		throw std::runtime_error("The unordered_map is empty.");
+	}
+
+	K maxId = std::numeric_limits<K>::min();
+
+	for (const auto& pair : map) {
+		if (pair.first > maxId) {
+			maxId = pair.first;
+		}
+	}
+
+	return maxId;
+}
+
+template <typename T> 
+T inputNumber(istream& in = cin) 
 {
 	T x;
 	while ((in >> x).fail()	// check type
@@ -64,13 +81,10 @@ T inputNumber(istream& in = cin) // check type
 		in.clear();
 		in.ignore(10000, '\n');
 		cout << "ERROR wrong type --> try again: ";
-		cerr << x << endl; // LOGGING!!!!!!!
 	}
-	cerr << x << endl; // LOGGING!!!!!!!
+	cerr << x << endl; 
 	return x;
 }
-template int inputNumber(istream& in);
-template double inputNumber(istream& in);
 
 class redirect_output_wrapper
 {
