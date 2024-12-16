@@ -12,6 +12,8 @@
 #include "Operations.h"
 #include "Utilities.h"
 #include "filtherr.h"
+#include "Connections.h"
+#include "GTS.h"
 using namespace std;
 using namespace chrono;
 
@@ -29,9 +31,13 @@ int MainMenu()
 	cout << "8. Сохранить" << endl;
 	cout << "9. Загрузить" << endl;
 	cout << "10. Поиск по фильтру" << endl;
+	cout << "11. Соединить трубу и КС в газотранспортную сеть" << endl;
+	cout << "12. Показать газотранспортную сеть" << endl;
+	cout << "13. Удалить сеть" << endl;
+	cout << "14. Топологическая сортировка" << endl;
 	cout << "0. Выход" << endl;
 	cout << endl << "Пожалуйста, введите номер команды: ";
-	return GetCorrectData(0, 10);
+	return GetCorrectData(0, 14);
 }
 void PipeEdit(unordered_map<int, Pipe>& Pipes) {
 	if (Pipes.size() == 0) {
@@ -92,7 +98,7 @@ void delCS(unordered_map<int, CStations>& Stations) {
 		cout << "\n[7] удаление станции: " << endl;
 		cout << "Введите ID: ";
 		int key0;
-		key0 = GetCorrectData(1, findMaxId(Stations));//!!!!!!!!!!!!
+		key0 = GetCorrectData(1, findMaxId(Stations));
 		removeKeyIfExists(Stations, key0);
 	}
 }
@@ -102,7 +108,7 @@ void save_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stat
 	ofstream fout;
 	string fileName;
 	cout << "Пожалуйста, введите имя файла: ";
-	INPUT_LINE(cin, fileName);///!!!!!!!!!!!!!!!!
+	INPUT_LINE(cin, fileName);
 	fout.open(fileName);
 	if (!fout.is_open())
 	{
@@ -126,7 +132,7 @@ void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stat
 	ifstream fin;
 	string fileName;
 	cout << "Пожалуйста, введите имя файла: ";
-	INPUT_LINE(cin, fileName);//!!!!!!!!!!!!!
+	INPUT_LINE(cin, fileName);
 	fin.open(fileName);
 	if (!fin.is_open())
 	{
@@ -237,6 +243,8 @@ int main()
 	unordered_map<int, Pipe> Pipes = {};
 	unordered_map<int, CStations> Stations = {};
 	Operations operations;
+	GTS gts;
+	unordered_map<int,connections> Conns;
 	while (true) {
 		switch (MainMenu())
 		{
@@ -299,6 +307,37 @@ int main()
 			filtering(Pipes, Stations, operations);
 			break;
 		}
+		case 11:
+		{
+			cout << "\n[11] Cоединение труб и КС..." << endl;
+			gts.ConnectInGTS1(Pipes, Stations, Conns);
+			break;
+		}
+		case 12:
+		{
+			cout << "\n[12] Просмотр ГТС..." << endl;
+			gts.ShowGTS(Conns);
+			break;
+		}
+		case 13:
+		{
+			cout << "\n[13] Удаление ГТС..." << endl;
+			gts.DeleteConnection(Conns, Pipes);
+			break;
+		}
+		case 14:
+		{
+			cout << "\n[14] Toпологическая сортировка..." << endl;
+			vector<int> sortStations = gts.topologSort(Pipes, Stations,Conns);
+
+			for (int id : sortStations)
+			{
+				cout << id << " ";
+			}
+			cout << endl;
+			break;
+		}
+
 		case 0:
 		{
 			return false;

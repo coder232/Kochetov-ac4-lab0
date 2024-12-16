@@ -20,5 +20,5 @@ public:
 		for (const auto& [id, obj] : objs)
 			cout << obj;
 	}
-};
 
+};

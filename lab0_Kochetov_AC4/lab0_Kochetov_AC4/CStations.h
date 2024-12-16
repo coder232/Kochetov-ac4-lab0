@@ -12,12 +12,20 @@ private:
 	int totalWorkshops = 0;
 	int ActWorkshops = 0;
 	double Efficiency = 0.0;
+	int id_in = 0;
+	int id_out = 0;
+	int shortest_path;
+
 public:
 	int GetId();
 	string Getname() const;
 	int GetWorkshops() const;
 	int GetActWorkshops() const;
 	int GetPercentOfNonActiveWorkshops() const;
+	int Get_Id_in() const;
+	int Get_Id_out() const;
+	void Set_Id_in(int in);
+	void Set_Id_out(int out);
 	void SetActWorkshops(int cnt);
 	void PrintWorkshops() const;
 	void EditCStation();

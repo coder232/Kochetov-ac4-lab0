@@ -35,6 +35,22 @@ T& SelectElement(unordered_map<int, T>& notes, int key)
 	}
 }
 
+template <typename T>
+T GetCorrectDiameter(T min, T max)
+{
+	T diam;
+	cin >> diam;
+	while (((diam != 500) && (diam != 700) && (diam != 1000) && (diam != 1400)) || diam < min || diam > max || cin.fail() || cin.peek() != '\n')
+	{
+		cin.clear();
+		cin.ignore(1000000, '\n');
+		cout << "Please, enter the correct pipe diameter [500, 700, 1000, 1400]: ";
+		cin >> diam;
+	}
+	cerr << diam << endl;
+	return diam;
+}
+
 
 template <typename K>
 unordered_map<int, K> removeKeyIfExists(unordered_map<int, K>& notes, int key) {
@@ -51,9 +67,7 @@ unordered_map<int, K> removeKeyIfExists(unordered_map<int, K>& notes, int key) {
 		}
 	}
 }
-
 string inputString(istream& in = cin);
-
 template<typename K, typename V>
 K findMaxId(const std::unordered_map<K, V>& map) {
 	if (map.empty()) {
@@ -67,7 +81,6 @@ K findMaxId(const std::unordered_map<K, V>& map) {
 			maxId = pair.first;
 		}
 	}
-
 	return maxId;
 }
 

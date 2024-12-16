@@ -25,6 +25,24 @@ int CStations::GetPercentOfNonActiveWorkshops() const
 {
     return (totalWorkshops - ActWorkshops) * 100 / totalWorkshops;
 }
+
+int CStations::Get_Id_in() const {
+    return id_in;
+}
+
+int CStations::Get_Id_out() const {
+    return id_out;
+
+}
+
+void CStations::Set_Id_in(int in) {
+    id_in = in;
+}
+
+void CStations::Set_Id_out(int out) {
+    id_out = out;
+}
+
 void CStations::SetActWorkshops(int cnt)
 {
     ActWorkshops = cnt;

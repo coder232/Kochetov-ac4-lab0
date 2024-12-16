@@ -14,15 +14,28 @@ private:
 	double Length = 0.0;
 	int Diameter = 0;
 	bool isUnderRepair = false;
+	int CSid1 = 0;
+	int CSid2 = 0;
+	bool free = 1;
+
 
 public:	
 	int GetDiameter() const;
 	int GetId();
 	string Getname() const;
 	bool GetRepairStatus();
+	int GetCSid1() const;
+	int GetCSid2() const;
+	bool Get_free();
+	void Set_free(bool status);
 	void SetRepairStatus(bool status);
+	void SetDiameter(int diam);
 	void PrintRepairStatus();
 	void EditPipe();
+	void Connect(const int& id1, const int& id2);
+	void DeleteConnection();
+	bool ConnectionNotBusy() const;
+
 
 	friend ostream& operator << (ostream& out, const Pipe& newPipe);
 	friend istream& operator >> (istream& in, Pipe& newPipe);

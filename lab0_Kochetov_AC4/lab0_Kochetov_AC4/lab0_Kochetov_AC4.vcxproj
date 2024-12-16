@@ -130,6 +130,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CStations.cpp" />
+    <ClCompile Include="GTS.cpp" />
     <ClCompile Include="main.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp20</LanguageStandard>
     </ClCompile>
@@ -140,6 +141,8 @@
   <ItemGroup>
     <ClInclude Include="CStations.h" />
     <ClInclude Include="filtherr.h" />
+    <ClInclude Include="GTS.h" />
+    <ClInclude Include="Connections.h" />
     <ClInclude Include="Operations.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="Pipe.h" />

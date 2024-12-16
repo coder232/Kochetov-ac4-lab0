@@ -21,10 +21,49 @@ bool Pipe::GetRepairStatus()
 {
     return isUnderRepair;
 }
+
+int Pipe::GetCSid1() const{
+    return CSid1;
+}
+
+int Pipe::GetCSid2() const{
+    return CSid2;
+}
+
+bool Pipe::Get_free() {
+    return free;
+}
+
+void Pipe::Set_free(bool status) {
+    free = status;
+}
+
 void Pipe::SetRepairStatus(bool status)
 {
     isUnderRepair = status;
 }
+
+void Pipe::SetDiameter(int diam) {
+    Diameter = diam;
+}
+
+void Pipe::Connect(const int& id1, const int& id2)
+{
+    CSid1 = id1;
+    CSid2 = id2;
+}
+
+void Pipe::DeleteConnection()
+{
+    CSid1 = 0;
+    CSid2 = 0;
+}
+
+bool Pipe::ConnectionNotBusy() const
+{
+    return CSid1 < 1 || CSid2 < 1;
+}
+
 
 void Pipe::PrintRepairStatus()
 {
