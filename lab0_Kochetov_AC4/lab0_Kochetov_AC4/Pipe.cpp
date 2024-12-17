@@ -47,12 +47,6 @@ void Pipe::SetDiameter(int diam) {
     Diameter = diam;
 }
 
-void Pipe::Connect(const int& id1, const int& id2)
-{
-    CSid1 = id1;
-    CSid2 = id2;
-}
-
 void Pipe::DeleteConnection()
 {
     CSid1 = 0;

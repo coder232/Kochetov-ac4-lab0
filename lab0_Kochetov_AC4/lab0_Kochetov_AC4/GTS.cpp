@@ -144,7 +144,7 @@ void GTS::ConnectInGTS1(unordered_map<int, Pipe>& Pipes, unordered_map<int, CSta
 	{
 		while (true)
 		{
-			cout << "Нет КС с таким Id, попробуйте еще раз: ";
+			cout << "Нет свободной КС с таким Id, попробуйте еще раз: ";
 			pipe_connect.id_entry = inputNumber<int>(cin);
 			if (find(free_cs.begin(), free_cs.end(), pipe_connect.id_entry) != free_cs.end())
 			{
@@ -254,12 +254,30 @@ void GTS::DeleteConnection(unordered_map<int,connections>& Connections, unordere
 		}
 	}
 }
+void GTS::dfs(int stationId, unordered_map<int, connections>& Connections, unordered_map<int, int>& state, vector<int>& result, bool& hasCycle) {
+	if (state[stationId] == 1) {
+		hasCycle = true;
+		return;
+	}
+	if (state[stationId] == 0) {
+		state[stationId] = 1; 
+		for (auto& elem : Connections) {
+			if (elem.second.id_entry == stationId) {
+				dfs(elem.second.id_out, Connections, state, result, hasCycle);
+			}
+		}
+		state[stationId] = 2;
+		result.push_back(stationId);
+	}
+}
 
 vector<int> GTS::topologSort(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, unordered_map<int, connections>& Connections)
 {
 	vector<int> result;
 	unordered_map<int, int> enterEdges;
 	unordered_map<int, int> outEdges;
+	unordered_map<int, int> state;
+	bool hasCycle = false;
 
 	for (auto& elem : Connections)
 	{
@@ -272,32 +290,26 @@ vector<int> GTS::topologSort(unordered_map<int, Pipe>& Pipes, unordered_map<int,
 			outEdges[elem.second.id_entry]++;
 	}
 
-	queue<int> que;
-	for (auto& elem : Stations)
-	{
-		if (enterEdges.find(elem.first) == enterEdges.end() && outEdges.find(elem.first) != outEdges.end())
-		{
-			que.push(elem.first);
+	for (auto& elem : Stations) {
+		state[elem.first] = 0; 
+	}
+
+	for (auto& elem : Stations) {
+		if (enterEdges.find(elem.first) == enterEdges.end() && outEdges.find(elem.first) != outEdges.end()) {
+			dfs(elem.first, Connections, state, result, hasCycle);
 		}
 	}
 
-	while (!que.empty())
-	{
-		int curStation = que.front();
-		que.pop();
-		result.push_back(curStation);
-
-		for (auto& elem : Connections)
-		{
-			if (elem.second.id_entry == curStation && elem.second.id_entry != 0)
-			{
-				enterEdges[elem.second.id_out]--;
-				if (enterEdges[elem.second.id_out] == 0)
-				{
-					que.push(elem.second.id_out);
-				}
-			}
+	for (auto& elem : Stations) {
+		if (state[elem.first] == 0) {
+			dfs(elem.first, Connections, state, result, hasCycle);
 		}
 	}
+
+	if (hasCycle) {
+		return {};
+	}
+
+	reverse(result.begin(), result.end());
 	return result;
 }

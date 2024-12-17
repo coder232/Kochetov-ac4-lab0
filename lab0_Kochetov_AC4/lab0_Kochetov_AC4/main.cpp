@@ -78,7 +78,7 @@ void CSEdit(unordered_map<int, CStations>& Stations) {
 		station0.EditCStation();
 	}
 }
-void delPipe(unordered_map<int, Pipe>& Pipes) {
+void delPipe(unordered_map<int, Pipe>& Pipes, unordered_map<int, connections>& Connections, unordered_map<int, CStations>& Stations) {
 	if (Pipes.size() == 0) {
 		cout << "\n0 труб доступно!" << endl;
 	}
@@ -86,11 +86,26 @@ void delPipe(unordered_map<int, Pipe>& Pipes) {
 		cout << "\n[6] Удаление трубы: " << endl;
 		cout << "Введите ID: ";
 		int key0;
-		key0 = GetCorrectData(1, findMaxId(Pipes));///!!!!!!!!!!!!!!!!!
+		key0 = GetCorrectData(1, findMaxId(Pipes));
+		for (auto it = Connections.begin(); it != Connections.end(); ) {
+			if (it->second.id_pipe == key0) {
+
+				int id_entry = it->second.id_entry;
+				int id_out = it->second.id_out;
+
+				Stations[id_entry].Set_Id_in(Stations[id_entry].Get_Id_in() - 1);
+				Stations[id_out].Set_Id_out(Stations[id_out].Get_Id_out() - 1);
+				it = Connections.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+
 		removeKeyIfExists(Pipes, key0);
 	}
 }
-void delCS(unordered_map<int, CStations>& Stations) {
+void delCS(unordered_map<int, CStations>& Stations, unordered_map<int, connections>& Connections, unordered_map<int, Pipe>& Pipes) {
 	if (Stations.size() == 0) {
 		cout << "\n0 станций доступно!" << endl;
 	}
@@ -99,11 +114,32 @@ void delCS(unordered_map<int, CStations>& Stations) {
 		cout << "Введите ID: ";
 		int key0;
 		key0 = GetCorrectData(1, findMaxId(Stations));
+		for (auto it = Connections.begin(); it != Connections.end(); ) {
+			if (it->second.id_entry == key0 || it->second.id_out == key0) {
+				int pipeId = it->second.id_pipe;
+				if (Pipes.find(pipeId) != Pipes.end()) {
+					Pipes[pipeId].Set_free(true);
+				}
+				if (it->second.id_entry == key0) {
+					int id_out = it->second.id_out;
+					Stations[id_out].Set_Id_in(Stations[id_out].Get_Id_in() - 1);
+				}
+
+				if (it->second.id_out == key0) {
+					int id_entry = it->second.id_entry;
+					Stations[id_entry].Set_Id_out(Stations[id_entry].Get_Id_out() - 1);
+				}
+				it = Connections.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
 		removeKeyIfExists(Stations, key0);
 	}
 }
 
-void save_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations) {
+void save_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, unordered_map<int,connections>& Conns) {
 	cout << "\n[8] Сохранение в файл" << endl;
 	ofstream fout;
 	string fileName;
@@ -124,10 +160,14 @@ void save_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stat
 		for (const auto& elem : Stations)
 			fout << elem.second;
 		cout << "Данные о КС быи успешно сохранены!" << endl;
+		fout << Conns.size() << endl;
+		for (const auto& elem : Conns)
+			fout << elem.second;
+		cout << "Данные о ГТС успешно сохранены!" << endl;
 	}
 	fout.close();
 }
-void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations) {
+void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, unordered_map<int,connections>& Conns) {
 	cout << "\n[9] Загрузка из файла" << endl;
 	ifstream fin;
 	string fileName;
@@ -165,6 +205,18 @@ void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stat
 			CStations station0;
 			fin >> station0;
 			Stations.insert({ station0.GetId(), station0 });
+		}
+		int connsSize;
+		fin >> connsSize;
+		if (connsSize == 0)
+			cout << "Нет информации о ГТС!" << endl;
+		else {
+			cout << "Данные о ГТС были успешно загружены!" << endl;
+		}
+		while (connsSize-- > 0) {
+			connections conn0;
+			fin >> conn0;
+			Conns.insert({ conn0.id_entry, conn0 });
 		}
 		fin.close();
 	}
@@ -284,22 +336,22 @@ int main()
 		}
 		case 6:
 		{
-			delPipe(Pipes);
+			delPipe(Pipes, Conns, Stations);
 			break;
 		}
 		case 7:
 		{
-			delCS(Stations);
+			delCS(Stations,Conns,Pipes);
 			break;
 		}
 		case 8:
 		{
-			save_d(Pipes, Stations);
+			save_d(Pipes, Stations,Conns);
 			break;
 		}
 		case 9:
 		{
-			load_d(Pipes, Stations);
+			load_d(Pipes, Stations,Conns);
 			break;
 		}
 		case 10:
@@ -329,7 +381,10 @@ int main()
 		{
 			cout << "\n[14] Toпологическая сортировка..." << endl;
 			vector<int> sortStations = gts.topologSort(Pipes, Stations,Conns);
-
+			if (sortStations.empty()) {
+				cout << "Цикл в графе обнаружен, сортировка невозможна!" << endl;
+				break;
+			}
 			for (int id : sortStations)
 			{
 				cout << id << " ";

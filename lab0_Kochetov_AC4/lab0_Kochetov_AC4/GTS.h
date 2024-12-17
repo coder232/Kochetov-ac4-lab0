@@ -17,6 +17,6 @@ public:
 	void ShowGTS(unordered_map<int, connections>& Connections);
 	void DeleteConnection(unordered_map<int, connections>& Connections, unordered_map<int, Pipe>& Pipes);
 	vector<int> topologSort(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, unordered_map<int, connections>& Connections);
-
-
+private:
+	void dfs(int stationId, unordered_map<int, connections>& Connections, unordered_map<int, int>& state, vector<int>& result, bool& hasCycle);
 };
