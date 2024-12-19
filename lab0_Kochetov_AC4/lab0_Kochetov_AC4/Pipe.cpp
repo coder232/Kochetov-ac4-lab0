@@ -32,6 +32,10 @@ int Pipe::GetCSid2() const{
     return CSid2;
 }
 
+int Pipe::GetCapac() {
+    return capac;
+}
+
 bool Pipe::Get_free() {
     return free;
 }
@@ -47,6 +51,10 @@ void Pipe::SetRepairStatus(bool status)
 
 void Pipe::SetDiameter(int diam) {
     Diameter = diam;
+}
+
+void Pipe::SetCapac(int c) {
+    capac = c;
 }
 
 void Pipe::DeleteConnection()

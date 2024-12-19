@@ -17,6 +17,7 @@ private:
 	int CSid1 = 0;
 	int CSid2 = 0;
 	bool free = 1;
+	int capac = 0;
 
 
 public:	
@@ -27,10 +28,12 @@ public:
 	bool GetRepairStatus();
 	int GetCSid1() const;
 	int GetCSid2() const;
+	int GetCapac();
 	bool Get_free();
 	void Set_free(bool status);
 	void SetRepairStatus(bool status);
 	void SetDiameter(int diam);
+	void SetCapac(int c);
 	void PrintRepairStatus();
 	void EditPipe();
 	void Connect(const int& id1, const int& id2);

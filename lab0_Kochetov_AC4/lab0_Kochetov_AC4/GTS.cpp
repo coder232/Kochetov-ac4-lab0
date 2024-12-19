@@ -321,6 +321,38 @@ vector<int> GTS::topologSort(unordered_map<int, Pipe>& Pipes, unordered_map<int,
 	return result;
 }
 
+void GTS::InitializeCapacities(unordered_map<int, Pipe>& pipes) {
+	for (auto& pipePair : pipes) {
+		Pipe& pipe = pipePair.second;
+		int diameter = pipe.GetDiameter();
+
+		if (diameter == 500) {
+			pipe.SetCapac(5);
+		}
+		else if (diameter == 700) {
+			pipe.SetCapac(12);
+		}
+		else if (diameter == 1000) {
+			pipe.SetCapac(28);
+		}
+		else if (diameter == 1400) {
+			pipe.SetCapac(95);
+		}
+	}
+}
+
+#include "GTS.h"
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <set>
+#include <limits>
+#include <queue>
+#include <algorithm>
+
+using namespace std;
+
 void GTS::Djikstra(unordered_map<int, Pipe>& Pipes, unordered_map<int, vector<connections>>& Connections, unordered_map<int, CStations>& Stations)
 {
 	if (Connections.size() == 0)
@@ -385,6 +417,8 @@ void GTS::Djikstra(unordered_map<int, Pipe>& Pipes, unordered_map<int, vector<co
 	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
 	pq.push({ 0, start_vertex });
 
+	unordered_map<int, int> predecessors;
+
 	while (!pq.empty()) {
 		int current_vertex = pq.top().second;
 		int current_distance = pq.top().first;
@@ -402,6 +436,7 @@ void GTS::Djikstra(unordered_map<int, Pipe>& Pipes, unordered_map<int, vector<co
 			if (new_distance < Stations[neighbor_vertex].GetShortestPath()) {
 				Stations[neighbor_vertex].SetShortestPath(new_distance);
 				pq.push({ new_distance, neighbor_vertex });
+				predecessors[neighbor_vertex] = current_vertex;
 			}
 		}
 	}
@@ -413,11 +448,23 @@ void GTS::Djikstra(unordered_map<int, Pipe>& Pipes, unordered_map<int, vector<co
 	else
 	{
 		cout << "Кратчайший путь от " << start_vertex << " до " << end_vertex << ": " << Stations[end_vertex].GetShortestPath() << endl;
+		vector<int> path;
+		for (int at = end_vertex; at != start_vertex; at = predecessors[at]) {
+			path.push_back(at);
+		}
+		path.push_back(start_vertex);
+		reverse(path.begin(), path.end());
+
+		cout << "Последовательность КС: ";
+		for (size_t i = 0; i < path.size(); ++i) {
+			cout << path[i];
+			if (i < path.size() - 1) {
+				cout << " -> ";
+			}
+		}
+		cout << endl;
 	}
 }
-
-
-
 
 bool BFS(vector<vector<int>>& rGraph, int s, int t, vector<int>& parent)
 {
@@ -448,10 +495,10 @@ bool BFS(vector<vector<int>>& rGraph, int s, int t, vector<int>& parent)
 	return visited[t];
 }
 
-void GTS::FordFulkerson(unordered_map<int, vector<connections>>& Connections, unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations)
-{
-	if (Connections.size() == 0)
-	{
+void GTS::FordFulkerson(unordered_map<int, vector<connections>>& Connections, unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations) {
+	InitializeCapacities(Pipes);
+
+	if (Connections.size() == 0) {
 		cout << "У вас нет соединений!" << endl;
 		return;
 	}
@@ -460,26 +507,20 @@ void GTS::FordFulkerson(unordered_map<int, vector<connections>>& Connections, un
 	int maxel = 0;
 	int minel = numeric_limits<int>::max();
 
-	for (auto& conn_list : Connections)
-	{
-		for (auto& conn : conn_list.second)
-		{
+	for (auto& conn_list : Connections) {
+		for (auto& conn : conn_list.second) {
 			vertexes.insert(conn.id_entry);
 			vertexes.insert(conn.id_out);
-			if (conn.id_entry > maxel)
-			{
+			if (conn.id_entry > maxel) {
 				maxel = conn.id_entry;
 			}
-			if (conn.id_entry < minel)
-			{
+			if (conn.id_entry < minel) {
 				minel = conn.id_entry;
 			}
-			if (conn.id_out > maxel)
-			{
+			if (conn.id_out > maxel) {
 				maxel = conn.id_out;
 			}
-			if (conn.id_out < minel)
-			{
+			if (conn.id_out < minel) {
 				minel = conn.id_out;
 			}
 		}
@@ -492,8 +533,7 @@ void GTS::FordFulkerson(unordered_map<int, vector<connections>>& Connections, un
 	int t;
 	t = GetCorrectData(minel, maxel);
 
-	while (s == t)
-	{
+	while (s == t) {
 		cout << "Источник и сток не должны быть одним и тем же номером!" << endl;
 		t = GetCorrectData(minel, maxel);
 	}
@@ -503,24 +543,21 @@ void GTS::FordFulkerson(unordered_map<int, vector<connections>>& Connections, un
 
 	for (const auto& conn_list : Connections) {
 		for (const auto& conn : conn_list.second) {
-			RGraph[conn.id_entry][conn.id_out] = Pipes[conn.id_pipe].GetLen();
+			RGraph[conn.id_entry][conn.id_out] = Pipes[conn.id_pipe].GetCapac();
 		}
 	}
 
 	vector<int> parent(V, -1);
 	int maxFlow = 0;
 
-	while (BFS(RGraph, s, t, parent))
-	{
-		int pathFlow = INT_MAX;
-		for (int v = t; v != s; v = parent[v])
-		{
+	while (BFS(RGraph, s, t, parent)) {
+		int pathFlow = numeric_limits<int>::max();
+		for (int v = t; v != s; v = parent[v]) {
 			int u = parent[v];
 			pathFlow = min(pathFlow, RGraph[u][v]);
 		}
 
-		for (int v = t; v != s; v = parent[v])
-		{
+		for (int v = t; v != s; v = parent[v]) {
 			int u = parent[v];
 			RGraph[u][v] -= pathFlow;
 			RGraph[v][u] += pathFlow;
