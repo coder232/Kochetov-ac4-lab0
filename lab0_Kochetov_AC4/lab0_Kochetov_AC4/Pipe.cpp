@@ -11,7 +11,9 @@ int Pipe::GetDiameter() const
 {
     return Diameter;
 }
-
+int Pipe::GetLen() const {
+    return Length;
+}
 string Pipe::Getname() const
 {
     return kilometricMark;

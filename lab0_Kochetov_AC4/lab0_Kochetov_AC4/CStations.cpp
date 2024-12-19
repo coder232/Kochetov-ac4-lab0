@@ -34,6 +34,9 @@ int CStations::Get_Id_out() const {
     return id_out;
 
 }
+int CStations::GetShortestPath() const {
+    return shortest_path;
+}
 
 void CStations::Set_Id_in(int in) {
     id_in = in;
@@ -46,6 +49,9 @@ void CStations::Set_Id_out(int out) {
 void CStations::SetActWorkshops(int cnt)
 {
     ActWorkshops = cnt;
+}
+void CStations::SetShortestPath(int sh) {
+    shortest_path = sh;
 }
 
 void CStations::PrintWorkshops() const

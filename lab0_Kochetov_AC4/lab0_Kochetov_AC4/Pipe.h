@@ -21,6 +21,7 @@ private:
 
 public:	
 	int GetDiameter() const;
+	int GetLen() const;
 	int GetId();
 	string Getname() const;
 	bool GetRepairStatus();

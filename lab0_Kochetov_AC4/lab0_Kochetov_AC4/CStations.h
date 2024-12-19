@@ -24,9 +24,11 @@ public:
 	int GetPercentOfNonActiveWorkshops() const;
 	int Get_Id_in() const;
 	int Get_Id_out() const;
+	int GetShortestPath() const;
 	void Set_Id_in(int in);
 	void Set_Id_out(int out);
 	void SetActWorkshops(int cnt);
+	void SetShortestPath(int sh);
 	void PrintWorkshops() const;
 	void EditCStation();
 

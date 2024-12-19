@@ -17,7 +17,6 @@
 using namespace std;
 using namespace chrono;
 
-
 int MainMenu()
 {
 	cout << endl << "Меню:" << endl;
@@ -35,10 +34,13 @@ int MainMenu()
 	cout << "12. Показать газотранспортную сеть" << endl;
 	cout << "13. Удалить сеть" << endl;
 	cout << "14. Топологическая сортировка" << endl;
+	cout << "15. Нахождение кратчайшего пути между вершинами алгоритмом Дейкстры" << endl;
+	cout << "16. Нахождение максимального потока алгоритмом Форда-Фалкерсона" << endl;
 	cout << "0. Выход" << endl;
 	cout << endl << "Пожалуйста, введите номер команды: ";
-	return GetCorrectData(0, 14);
+	return GetCorrectData(0, 16);
 }
+
 void PipeEdit(unordered_map<int, Pipe>& Pipes) {
 	if (Pipes.size() == 0) {
 		cout << "\n0 труб доступно!" << endl;
@@ -78,7 +80,8 @@ void CSEdit(unordered_map<int, CStations>& Stations) {
 		station0.EditCStation();
 	}
 }
-void delPipe(unordered_map<int, Pipe>& Pipes, unordered_map<int, connections>& Connections, unordered_map<int, CStations>& Stations) {
+
+void delPipe(unordered_map<int, Pipe>& Pipes, unordered_map<int, vector<connections>>& Conns, unordered_map<int, CStations>& Stations) {
 	if (Pipes.size() == 0) {
 		cout << "\n0 труб доступно!" << endl;
 	}
@@ -87,25 +90,35 @@ void delPipe(unordered_map<int, Pipe>& Pipes, unordered_map<int, connections>& C
 		cout << "Введите ID: ";
 		int key0;
 		key0 = GetCorrectData(1, findMaxId(Pipes));
-		for (auto it = Connections.begin(); it != Connections.end(); ) {
-			if (it->second.id_pipe == key0) {
+		for (auto it = Conns.begin(); it != Conns.end(); ) {
+			// Перебираем все соединения для данного ключа (id_entry)
+			auto& connectionsVector = it->second;
+			for (auto connIt = connectionsVector.begin(); connIt != connectionsVector.end(); ) {
+				if (connIt->id_pipe == key0) {
+					cout << "Обнаружена сеть, содержащая эту трубу. Происходит удаление сети..." << endl;
+					int id_entry = connIt->id_entry;
+					int id_out = connIt->id_out;
 
-				int id_entry = it->second.id_entry;
-				int id_out = it->second.id_out;
-
-				Stations[id_entry].Set_Id_in(Stations[id_entry].Get_Id_in() - 1);
-				Stations[id_out].Set_Id_out(Stations[id_out].Get_Id_out() - 1);
-				it = Connections.erase(it);
+					Stations[id_entry].Set_Id_in(Stations[id_entry].Get_Id_in() - 1);
+					Stations[id_out].Set_Id_out(Stations[id_out].Get_Id_out() - 1);
+					connIt = connectionsVector.erase(connIt);
+				}
+				else {
+					++connIt;
+				}
+			}
+			if (connectionsVector.empty()) {
+				it = Conns.erase(it); // Удаляем записи, если они пусты
 			}
 			else {
 				++it;
 			}
 		}
-
 		removeKeyIfExists(Pipes, key0);
 	}
 }
-void delCS(unordered_map<int, CStations>& Stations, unordered_map<int, connections>& Connections, unordered_map<int, Pipe>& Pipes) {
+
+void delCS(unordered_map<int, CStations>& Stations, unordered_map<int, vector<connections>>& Conns, unordered_map<int, Pipe>& Pipes) {
 	if (Stations.size() == 0) {
 		cout << "\n0 станций доступно!" << endl;
 	}
@@ -114,22 +127,32 @@ void delCS(unordered_map<int, CStations>& Stations, unordered_map<int, connectio
 		cout << "Введите ID: ";
 		int key0;
 		key0 = GetCorrectData(1, findMaxId(Stations));
-		for (auto it = Connections.begin(); it != Connections.end(); ) {
-			if (it->second.id_entry == key0 || it->second.id_out == key0) {
-				int pipeId = it->second.id_pipe;
-				if (Pipes.find(pipeId) != Pipes.end()) {
-					Pipes[pipeId].Set_free(true);
+		for (auto it = Conns.begin(); it != Conns.end(); ) {
+			// Перебираем все соединения для данного ключа (id_entry)
+			auto& connectionsVector = it->second;
+			for (auto connIt = connectionsVector.begin(); connIt != connectionsVector.end(); ) {
+				if (connIt->id_entry == key0 || connIt->id_out == key0) {
+					int pipeId = connIt->id_pipe;
+					cout << "Обнаружена сеть, содержащая эту КС. Происходит удаление сети..." << endl;
+					if (Pipes.find(pipeId) != Pipes.end()) {
+						Pipes[pipeId].Set_free(true);
+					}
+					if (connIt->id_entry == key0) {
+						int id_out = connIt->id_out;
+						Stations[id_out].Set_Id_in(Stations[id_out].Get_Id_in() - 1);
+					}
+					if (connIt->id_out == key0) {
+						int id_entry = connIt->id_entry;
+						Stations[id_entry].Set_Id_out(Stations[id_entry].Get_Id_out() - 1);
+					}
+					connIt = connectionsVector.erase(connIt);
 				}
-				if (it->second.id_entry == key0) {
-					int id_out = it->second.id_out;
-					Stations[id_out].Set_Id_in(Stations[id_out].Get_Id_in() - 1);
+				else {
+					++connIt;
 				}
-
-				if (it->second.id_out == key0) {
-					int id_entry = it->second.id_entry;
-					Stations[id_entry].Set_Id_out(Stations[id_entry].Get_Id_out() - 1);
-				}
-				it = Connections.erase(it);
+			}
+			if (connectionsVector.empty()) {
+				it = Conns.erase(it); // Удаляем записи, если они пусты
 			}
 			else {
 				++it;
@@ -139,7 +162,7 @@ void delCS(unordered_map<int, CStations>& Stations, unordered_map<int, connectio
 	}
 }
 
-void save_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, unordered_map<int,connections>& Conns) {
+void save_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, unordered_map<int, vector<connections>>& Conns) {
 	cout << "\n[8] Сохранение в файл" << endl;
 	ofstream fout;
 	string fileName;
@@ -159,15 +182,20 @@ void save_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stat
 		fout << Stations.size() << endl;
 		for (const auto& elem : Stations)
 			fout << elem.second;
-		cout << "Данные о КС быи успешно сохранены!" << endl;
+		cout << "Данные о КС были успешно сохранены!" << endl;
+
 		fout << Conns.size() << endl;
-		for (const auto& elem : Conns)
-			fout << elem.second;
+		for (const auto& elem : Conns) {
+			for (const auto& conn : elem.second) {
+				fout << conn;
+			}
+		}
 		cout << "Данные о ГТС успешно сохранены!" << endl;
 	}
 	fout.close();
 }
-void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, unordered_map<int,connections>& Conns) {
+
+void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, unordered_map<int, vector<connections>>& Conns) {
 	cout << "\n[9] Загрузка из файла" << endl;
 	ifstream fin;
 	string fileName;
@@ -196,7 +224,7 @@ void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stat
 		int csSize;
 		fin >> csSize;
 		if (csSize == 0)
-			cout << "нет информации о КС!" << endl;
+			cout << "Нет информации о КС!" << endl;
 		else {
 			cout << "Данные о КС были успешно загружены!" << endl;
 		}
@@ -206,6 +234,7 @@ void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stat
 			fin >> station0;
 			Stations.insert({ station0.GetId(), station0 });
 		}
+
 		int connsSize;
 		fin >> connsSize;
 		if (connsSize == 0)
@@ -213,15 +242,17 @@ void load_d(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stat
 		else {
 			cout << "Данные о ГТС были успешно загружены!" << endl;
 		}
+
 		while (connsSize-- > 0) {
 			connections conn0;
 			fin >> conn0;
-			Conns.insert({ conn0.id_entry, conn0 });
+			Conns[conn0.id_entry].push_back(conn0);
 		}
 		fin.close();
 	}
 }
-void filtering(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, Operations& operations) {
+
+void filtering(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& Stations, Operations& operations, unordered_map<int, vector<connections>>& Conns) {
 	bool flag = true;
 	while (flag) {
 		cout << "\n[10] Поиск" << endl;
@@ -240,7 +271,6 @@ void filtering(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& S
 			}
 			else {
 				cout << "Найдены трубы:" << endl;
-				// Вывод идентификаторов найденных труб
 				for (int id : nameResults) {
 					auto it = Pipes.find(id);
 					if (it != Pipes.end()) {
@@ -249,7 +279,7 @@ void filtering(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& S
 					}
 				}
 				cout << endl;
-				operations.EditPipes(Pipes, nameResults);
+				operations.EditPipes(Pipes, nameResults, Stations, Conns);
 			}
 			break;
 		}
@@ -269,7 +299,7 @@ void filtering(unordered_map<int, Pipe>& Pipes, unordered_map<int, CStations>& S
 					}
 				}
 				cout << endl;
-				operations.EditCStations(Stations, nameResults);
+				operations.EditCStations(Stations, nameResults, Pipes, Conns);
 			}
 			break;
 		}
@@ -296,7 +326,7 @@ int main()
 	unordered_map<int, CStations> Stations = {};
 	Operations operations;
 	GTS gts;
-	unordered_map<int,connections> Conns;
+	unordered_map<int, vector<connections>> Conns;  // Обновлено с unordered_map<int, connections> на unordered_map<int, vector<connections>>
 	while (true) {
 		switch (MainMenu())
 		{
@@ -319,7 +349,6 @@ int main()
 		case 3:
 		{
 			cout << "\n[3] Показать все объекты: " << endl;
-			
 			Operations::Show(Pipes);
 			Operations::Show(Stations);
 			break;
@@ -337,26 +366,28 @@ int main()
 		case 6:
 		{
 			delPipe(Pipes, Conns, Stations);
+			cout << "Удаление прошло успешно!" << endl;
 			break;
 		}
 		case 7:
 		{
-			delCS(Stations,Conns,Pipes);
+			delCS(Stations, Conns, Pipes);
+			cout << "Удаление прошло успешно!" << endl;
 			break;
 		}
 		case 8:
 		{
-			save_d(Pipes, Stations,Conns);
+			save_d(Pipes, Stations, Conns);
 			break;
 		}
 		case 9:
 		{
-			load_d(Pipes, Stations,Conns);
+			load_d(Pipes, Stations, Conns);
 			break;
 		}
 		case 10:
 		{
-			filtering(Pipes, Stations, operations);
+			filtering(Pipes, Stations, operations, Conns);
 			break;
 		}
 		case 11:
@@ -380,7 +411,7 @@ int main()
 		case 14:
 		{
 			cout << "\n[14] Toпологическая сортировка..." << endl;
-			vector<int> sortStations = gts.topologSort(Pipes, Stations,Conns);
+			vector<int> sortStations = gts.topologSort(Pipes, Stations, Conns);
 			if (sortStations.empty()) {
 				cout << "Цикл в графе обнаружен, сортировка невозможна!" << endl;
 				break;
@@ -390,6 +421,18 @@ int main()
 				cout << id << " ";
 			}
 			cout << endl;
+			break;
+		}
+		case 15:
+		{
+			cout << "\n [15] нахождение кратчайшего пути между двумя КС алгоритмом Дейкстры..." << endl;
+			gts.Djikstra(Pipes, Conns, Stations);
+			break;
+		}
+		case 16:
+		{
+			cout << "\n [16] нахождение максимального  потока в ГТС алгоритмом Форда-Фалкерсона..." << endl;
+			gts.FordFulkerson(Conns, Pipes, Stations);
 			break;
 		}
 
@@ -407,4 +450,5 @@ int main()
 	}
 	return 0;
 }
+
 
