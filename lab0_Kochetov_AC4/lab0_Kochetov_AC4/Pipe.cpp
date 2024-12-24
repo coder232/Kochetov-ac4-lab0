@@ -33,7 +33,12 @@ int Pipe::GetCSid2() const{
 }
 
 int Pipe::GetCapac() {
-    return capac;
+    if (isUnderRepair) {
+        return 0;
+    }
+    else {
+        return capac;
+    }
 }
 
 bool Pipe::Get_free() {

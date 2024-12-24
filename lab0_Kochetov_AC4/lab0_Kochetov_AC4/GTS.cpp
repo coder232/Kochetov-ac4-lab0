@@ -9,6 +9,10 @@
 #include <queue>
 #include <set>
 #include "Connections.h"
+#include <unordered_map>
+#include <unordered_set>
+#include <limits>
+#include <algorithm>
 
 /*bool GTS::HasConnection(const unordered_map<int, Pipe>& Pipes, const int& CSid1, const int& CSid2)
 {
@@ -341,16 +345,6 @@ void GTS::InitializeCapacities(unordered_map<int, Pipe>& pipes) {
 	}
 }
 
-#include "GTS.h"
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <set>
-#include <limits>
-#include <queue>
-#include <algorithm>
-
 using namespace std;
 
 void GTS::Djikstra(unordered_map<int, Pipe>& Pipes, unordered_map<int, vector<connections>>& Connections, unordered_map<int, CStations>& Stations)
@@ -430,7 +424,10 @@ void GTS::Djikstra(unordered_map<int, Pipe>& Pipes, unordered_map<int, vector<co
 
 		for (const auto& conn : Connections[current_vertex]) {
 			int neighbor_vertex = conn.id_out;
-			const Pipe& truba = Pipes[conn.id_pipe];
+			Pipe& truba = Pipes[conn.id_pipe];
+
+			if (truba.GetRepairStatus() == 1) continue; // Пропуск труб в ремонте
+
 			int new_distance = current_distance + truba.GetLen();
 
 			if (new_distance < Stations[neighbor_vertex].GetShortestPath()) {
@@ -465,6 +462,7 @@ void GTS::Djikstra(unordered_map<int, Pipe>& Pipes, unordered_map<int, vector<co
 		cout << endl;
 	}
 }
+
 
 bool BFS(vector<vector<int>>& rGraph, int s, int t, vector<int>& parent)
 {
@@ -543,7 +541,8 @@ void GTS::FordFulkerson(unordered_map<int, vector<connections>>& Connections, un
 
 	for (const auto& conn_list : Connections) {
 		for (const auto& conn : conn_list.second) {
-			RGraph[conn.id_entry][conn.id_out] = Pipes[conn.id_pipe].GetCapac();
+			int capacity = Pipes[conn.id_pipe].GetCapac();
+			RGraph[conn.id_entry][conn.id_out] = capacity;
 		}
 	}
 
